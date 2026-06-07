@@ -22,6 +22,8 @@ import 'package:melavpn/features/profile/model/profile_entity.dart';
 import 'package:melavpn/features/profile/notifier/profile_notifier.dart';
 import 'package:melavpn/features/profile/notifier/profile_outbounds_notifier.dart';
 import 'package:melavpn/features/profile/overview/profiles_notifier.dart';
+import 'package:melavpn/features/connection/model/connection_status.dart';
+import 'package:melavpn/features/connection/notifier/connection_notifier.dart';
 import 'package:melavpn/features/proxy/overview/proxies_overview_notifier.dart';
 import 'package:melavpn/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -310,13 +312,15 @@ class _MainProfileCard extends HookConsumerWidget {
     final offlineSelectedTag = ref.watch(_offlineSelectedOutboundProvider(profile.id));
     final offlinePingResults = ref.watch(_offlinePingResultsProvider(profile.id));
     final isOfflinePinging = ref.watch(_offlinePingingProvider(profile.id));
+    final connectionStatus = ref.watch(connectionNotifierProvider);
+    final isConnected = connectionStatus.valueOrNull == const Connected();
     final proxiesGroup = ref.watch(proxiesOverviewNotifierProvider);
     final offlineOutbounds = ref.watch(profileOutboundsProvider(profile.id));
     // groupTag: prefer live service, fallback to parsed selector tag from config
     final liveGroupTag = proxiesGroup.valueOrNull?.tag ?? '';
     final configSelectorTag = offlineOutbounds.valueOrNull?.selectorTag ?? '';
     final groupTag = liveGroupTag.isNotEmpty ? liveGroupTag : configSelectorTag;
-    final serviceRunning = liveGroupTag.isNotEmpty;
+    final serviceRunning = isConnected && liveGroupTag.isNotEmpty;
     // delay map from live service: rawTag → ms
     final delayMap = proxiesGroup.valueOrNull?.items.fold<Map<String, int>>(
       {},
@@ -336,33 +340,12 @@ class _MainProfileCard extends HookConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            MelaColors.primary.withValues(alpha: 0.08),
-            MelaColors.cardAlt(context),
-            MelaColors.card(context),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          stops: const [0.0, 0.4, 1.0],
-        ),
+        color: MelaColors.card(context),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: MelaColors.primary.withValues(alpha: 0.3),
-          width: 1.5,
+          color: MelaColors.brd(context),
+          width: 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: MelaColors.primary.withValues(alpha: 0.15),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-          ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -556,27 +539,14 @@ class _MainProfileCard extends HookConsumerWidget {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                           decoration: BoxDecoration(
-                            gradient: isPinging
-                                ? null
-                                : LinearGradient(
-                                    colors: [
-                                      MelaColors.secondary.withValues(alpha: 0.8),
-                                      const Color(0xFF06B6D4),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                            color: isPinging ? MelaColors.secondary.withValues(alpha: 0.1) : null,
+                            color: isPinging
+                                ? MelaColors.secondary.withValues(alpha: 0.1)
+                                : MelaColors.secondary.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(12),
-                            boxShadow: isPinging
-                                ? null
-                                : [
-                                    BoxShadow(
-                                      color: MelaColors.secondary.withValues(alpha: 0.3),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
+                            border: Border.all(
+                              color: MelaColors.secondary.withValues(alpha: 0.3),
+                              width: 1,
+                            ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -590,12 +560,12 @@ class _MainProfileCard extends HookConsumerWidget {
                                   ),
                                 )
                               else
-                                const Icon(Icons.wifi_tethering_rounded, size: 13, color: Colors.white),
+                                Icon(Icons.wifi_tethering_rounded, size: 13, color: MelaColors.secondary),
                               const Gap(5),
                               Text(
                                 isPinging ? 'ПИНГ...' : 'ПИНГ',
                                 style: TextStyle(
-                                  color: isPinging ? MelaColors.secondary : Colors.white,
+                                  color: MelaColors.secondary,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 0.5,
@@ -613,6 +583,7 @@ class _MainProfileCard extends HookConsumerWidget {
                   groupTag: groupTag,
                   profileId: profile.id,
                   selectedTag: effectiveSelectedTag,
+                  serviceRunning: serviceRunning,
                   delay: serviceRunning ? delayMap[item.rawTag] : offlinePingResults[item.rawTag],
                 )),
               ],
@@ -631,12 +602,14 @@ class _OfflineProxyRow extends ConsumerWidget {
     required this.groupTag,
     required this.profileId,
     required this.selectedTag,
+    required this.serviceRunning,
     this.delay,
   });
   final ProfileOutbound item;
   final String groupTag;
   final String profileId;
   final String selectedTag;
+  final bool serviceRunning;
   final int? delay;
 
   @override
@@ -654,10 +627,9 @@ class _OfflineProxyRow extends ConsumerWidget {
 
     return InkWell(
       onTap: () {
-        if (groupTag.isNotEmpty) {
+        if (serviceRunning && groupTag.isNotEmpty) {
           ref.read(proxiesOverviewNotifierProvider.notifier).changeProxy(groupTag, item.rawTag);
         } else {
-          // Offline: store selection in memory until service starts
           ref.read(_offlineSelectedOutboundProvider(profileId).notifier).state = item.rawTag;
         }
       },

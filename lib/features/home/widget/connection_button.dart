@@ -5,7 +5,6 @@ import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:melavpn/core/localization/translations.dart';
 import 'package:melavpn/core/router/bottom_sheets/bottom_sheets_notifier.dart';
-import 'package:melavpn/core/router/dialog/dialog_notifier.dart';
 import 'package:melavpn/core/theme/mela_colors.dart';
 import 'package:melavpn/core/widget/animated_text.dart';
 import 'package:melavpn/features/connection/model/connection_status.dart';
@@ -54,13 +53,10 @@ class ConnectionButton extends HookConsumerWidget {
             ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile();
             return;
           }
-          if (await ref.read(dialogNotifierProvider.notifier).showExperimentalFeatureNotice()) {
-            return await ref.read(connectionNotifierProvider.notifier).toggleConnection();
-          }
+          return await ref.read(connectionNotifierProvider.notifier).toggleConnection();
         },
         AsyncData(value: Connected()) => () async {
-          if (requiresReconnect == true &&
-              await ref.read(dialogNotifierProvider.notifier).showExperimentalFeatureNotice()) {
+          if (requiresReconnect == true) {
             return await ref
                 .read(connectionNotifierProvider.notifier)
                 .reconnect(await ref.read(activeProfileProvider.future));
@@ -267,7 +263,7 @@ class _GlowButton extends StatelessWidget {
             color: Colors.transparent,
             clipBehavior: Clip.antiAlias,
             child: InkWell(
-              onTap: onTap,
+              onTap: enabled ? onTap : null,
               splashColor: color.withValues(alpha: 0.3),
               child: Container(
                 width: innerSize,

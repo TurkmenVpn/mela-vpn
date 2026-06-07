@@ -368,11 +368,22 @@ class _MelaLogoTitle extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Shield icon with gradient
-        ShaderMask(
-          shaderCallback: (bounds) => MelaColors.primaryGradient.createShader(bounds),
-          blendMode: BlendMode.srcIn,
-          child: const Icon(Icons.security_rounded, size: 22, color: Colors.white),
+        // Shield icon with gradient + glow shadow
+        Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: MelaColors.primary.withValues(alpha: 0.55),
+                blurRadius: 18,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: ShaderMask(
+            shaderCallback: (bounds) => MelaColors.primaryGradient.createShader(bounds),
+            blendMode: BlendMode.srcIn,
+            child: const Icon(Icons.security_rounded, size: 22, color: Colors.white),
+          ),
         ),
         const Gap(7),
         ShaderMask(
@@ -388,6 +399,17 @@ class _MelaLogoTitle extends StatelessWidget {
               fontWeight: FontWeight.w900,
               color: Colors.white,
               letterSpacing: 0.3,
+              shadows: [
+                Shadow(
+                  color: Color(0x884F46E5),
+                  blurRadius: 16,
+                  offset: Offset(0, 2),
+                ),
+                Shadow(
+                  color: Color(0x554F46E5),
+                  blurRadius: 32,
+                ),
+              ],
             ),
           ),
         ),
