@@ -114,6 +114,13 @@ abstract class Preferences {
   static final warpConsentGiven = PreferencesNotifier.create<bool, bool>("warp-consent-given", false);
 
   static final showRouteGeneralOptions = PreferencesNotifier.create<bool, bool>("show-route-general-options", true);
+
+  static final connectedAt = PreferencesNotifier.create<DateTime?, String?>(
+    "connection_connected_at",
+    null,
+    mapFrom: (value) => value == null ? null : DateTime.tryParse(value),
+    mapTo: (value) => value?.toIso8601String(),
+  );
 }
 
 @Riverpod(keepAlive: true)

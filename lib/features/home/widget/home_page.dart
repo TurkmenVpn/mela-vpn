@@ -40,7 +40,6 @@ class HomePage extends HookConsumerWidget {
           color: MelaColors.textSecondary,
           onPressed: () => context.goNamed('settings'),
         ),
-        title: const _MelaLogoTitle(),
         centerTitle: true,
         actions: [
           Semantics(
@@ -342,7 +341,7 @@ class _MelaLogoTitle extends StatelessWidget {
           shaderCallback: (bounds) => MelaColors.primaryGradient.createShader(bounds),
           blendMode: BlendMode.srcIn,
           child: const Text(
-            'Mela VPN',
+            'Mela',
             style: TextStyle(
               fontSize: 21,
               fontWeight: FontWeight.w700,
