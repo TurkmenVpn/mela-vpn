@@ -10,7 +10,6 @@ import 'package:melavpn/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:melavpn/core/router/dialog/dialog_notifier.dart';
 import 'package:melavpn/core/router/go_router/helper/active_breakpoint_notifier.dart';
 import 'package:melavpn/core/theme/mela_colors.dart';
-import 'package:melavpn/features/connection/notifier/connection_notifier.dart';
 import 'package:melavpn/features/home/widget/connection_button.dart';
 import 'package:melavpn/features/home/widget/home_traffic_stats.dart';
 import 'package:melavpn/features/profile/add/add_profile_action_sheet.dart';
@@ -324,13 +323,11 @@ class _EmptyProfileHint extends ConsumerWidget {
   }
 }
 
-class _MelaLogoTitle extends ConsumerWidget {
+class _MelaLogoTitle extends StatelessWidget {
   const _MelaLogoTitle();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isConnected = ref.watch(connectionNotifierProvider).valueOrNull?.isConnected ?? false;
-
+  Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -350,48 +347,35 @@ class _MelaLogoTitle extends ConsumerWidget {
             letterSpacing: 0.3,
           ),
         ),
-        if (isConnected) ...[
-          const Gap(8),
-          const _VpnActiveBadge(),
-        ],
+        const Gap(6),
+        const _VpnTag(),
       ],
     );
   }
 }
 
-class _VpnActiveBadge extends StatelessWidget {
-  const _VpnActiveBadge();
+class _VpnTag extends StatelessWidget {
+  const _VpnTag();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: const Color(0xFF00C853),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF00C853).withValues(alpha: 0.45),
-            blurRadius: 8,
-            spreadRadius: 0,
-          ),
-        ],
+        border: Border.all(
+          color: MelaColors.primary.withValues(alpha: 0.45),
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(6),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.wifi_rounded, size: 11, color: Colors.white),
-          const Gap(3),
-          const Text(
-            'VPN',
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ],
+      child: const Text(
+        'VPN',
+        style: TextStyle(
+          color: MelaColors.primary,
+          fontSize: 9,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.8,
+        ),
       ),
     );
   }
