@@ -387,7 +387,7 @@ class _MelaLogoTitle extends ConsumerWidget {
             'Mela VPN',
             style: TextStyle(
               fontSize: 20,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.normal,
               color: Colors.white,
               letterSpacing: 0.3,
             ),
