@@ -74,42 +74,6 @@ class HomePage extends HookConsumerWidget {
               ),
             ),
           ),
-          // Ambient purple glow top-left
-          Positioned(
-            top: -60,
-            left: -40,
-            child: Container(
-              width: 260,
-              height: 260,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    MelaColors.primary.withValues(alpha: 0.14),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-          // Ambient cyan glow right
-          Positioned(
-            top: 80,
-            right: -60,
-            child: Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    MelaColors.secondary.withValues(alpha: 0.08),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
           // Main content
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -377,20 +341,13 @@ class _MelaLogoTitle extends ConsumerWidget {
           child: const Icon(Icons.security_rounded, size: 22, color: Colors.white),
         ),
         const Gap(7),
-        ShaderMask(
-          shaderCallback: (bounds) => const LinearGradient(
-            colors: [MelaColors.primary, Color(0xFF5B8BF6), Color(0xFF06B6D4)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ).createShader(bounds),
-          child: const Text(
-            'Mela VPN',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.normal,
-              color: Colors.white,
-              letterSpacing: 0.3,
-            ),
+        Text(
+          'Mela VPN',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.normal,
+            color: MelaColors.textPrim(context),
+            letterSpacing: 0.3,
           ),
         ),
         if (isConnected) ...[
