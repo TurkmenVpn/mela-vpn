@@ -337,46 +337,21 @@ class _MelaLogoTitle extends StatelessWidget {
           blendMode: BlendMode.srcIn,
           child: const Icon(Icons.security_rounded, size: 22, color: Colors.white),
         ),
-        const Gap(7),
-        Text(
-          'Mela VPN',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.normal,
-            color: MelaColors.textPrim(context),
-            letterSpacing: 0.3,
+        const Gap(8),
+        ShaderMask(
+          shaderCallback: (bounds) => MelaColors.primaryGradient.createShader(bounds),
+          blendMode: BlendMode.srcIn,
+          child: const Text(
+            'Mela VPN',
+            style: TextStyle(
+              fontSize: 21,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+              letterSpacing: 0.5,
+            ),
           ),
         ),
-        const Gap(6),
-        const _VpnTag(),
       ],
-    );
-  }
-}
-
-class _VpnTag extends StatelessWidget {
-  const _VpnTag();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: MelaColors.primary.withValues(alpha: 0.45),
-          width: 1,
-        ),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: const Text(
-        'VPN',
-        style: TextStyle(
-          color: MelaColors.primary,
-          fontSize: 9,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.8,
-        ),
-      ),
     );
   }
 }
