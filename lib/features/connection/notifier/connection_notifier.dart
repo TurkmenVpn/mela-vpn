@@ -62,8 +62,6 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
     yield* _connectionRepo.watchConnectionStatus().doOnData((event) {
       if (event case Connected()) {
         _connectedAt ??= DateTime.now();
-      } else if (event case Disconnected()) {
-        _connectedAt = null;
       }
       if (event case Disconnected(connectionFailure: final _?) when PlatformUtils.isDesktop) {
         Future.microtask(() => ref.read(Preferences.startedByUser.notifier).update(false));
@@ -174,6 +172,7 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
   }
 
   Future<void> _handleConnectError(ConnectionFailure err) async {
+    _connectedAt = null;
     loggy.warning("error connecting", err);
     await ref
         .read(dialogNotifierProvider.notifier)
@@ -187,6 +186,7 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
   }
 
   Future<void> _disconnect() async {
+    _connectedAt = null;
     await _connectionRepo.disconnect().mapLeft((err) {
       loggy.warning("error disconnecting", err);
       ref

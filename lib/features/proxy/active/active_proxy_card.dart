@@ -23,9 +23,53 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
     final activeProxy = ref.watch(activeProxyNotifierProvider.select((v) => v.valueOrNull));
     final t = ref.watch(translationsProvider).requireValue;
 
-    if (connectionState != const Connected() || activeProxy == null) {
-      return const SizedBox.shrink();
+    if (connectionState != const Connected()) {
+      return GestureDetector(
+        onTap: () => context.goNamed('proxies'),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: MelaColors.surf(context).withValues(alpha: 0.7),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: MelaColors.brd(context).withValues(alpha: 0.5), width: 1),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: MelaColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: MelaColors.primary.withValues(alpha: 0.2), width: 1),
+                ),
+                child: const Icon(Icons.language_rounded, color: MelaColors.primary, size: 22),
+              ),
+              const Gap(12),
+              Expanded(
+                child: Text(
+                  t.pages.proxies.title,
+                  style: TextStyle(
+                    color: MelaColors.textPrim(context),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: MelaColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.arrow_forward_ios_rounded, color: MelaColors.primary, size: 14),
+              ),
+            ],
+          ),
+        ),
+      );
     }
+
+    if (activeProxy == null) return const SizedBox.shrink();
 
     Future<void> handleUrlTest() async {
       try {
