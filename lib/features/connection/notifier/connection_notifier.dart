@@ -68,6 +68,9 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
             ref.read(Preferences.connectedAt.notifier).update(_connectedAt);
           }
         }
+      } else if (event case Disconnected()) {
+        _connectedAt = null;
+        ref.read(Preferences.connectedAt.notifier).update(null);
       }
       if (event case Disconnected(connectionFailure: final _?) when PlatformUtils.isDesktop) {
         Future.microtask(() => ref.read(Preferences.startedByUser.notifier).update(false));

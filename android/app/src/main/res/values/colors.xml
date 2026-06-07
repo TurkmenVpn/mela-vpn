@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="ic_launcher_background">#5856D6</color>
 
-	<color name="ic_launcher_background">#5856D6</color>
+    <!-- Notification — light theme -->
+    <color name="notif_text_primary">#1A1A2E</color>
+    <color name="notif_accent">#5856D6</color>
+    <color name="notif_upload">#D44332</color>
+    <color name="notif_download">#1A9E4A</color>
+    <color name="notif_icon_bg">#5856D6</color>
 </resources>

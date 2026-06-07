@@ -10,6 +10,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.util.Log
+import android.widget.RemoteViews
 import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
@@ -72,38 +73,41 @@ class ServiceNotification(private val status: MutableLiveData<Status>, private v
 
     private val notificationBuilder by lazy {
         NotificationCompat.Builder(service, notificationChannel)
-                .setShowWhen(false)
-                .setOngoing(true)
-                .setContentTitle("MelaVPN")
-                .setOnlyAlertOnce(true)
-                .setSmallIcon(R.drawable.ic_stat_logo)
-                .setColor(0xFF455FE9.toInt())
-                .setCategory(NotificationCompat.CATEGORY_SERVICE)
-                .setContentIntent(
-                        PendingIntent.getActivity(
-                                service,
-                                0,
-                                Intent(
-                                        service,
-                                        MainActivity::class.java
-                                ).setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT),
-                                flags
-                        )
+            .setShowWhen(false)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setSmallIcon(R.drawable.ic_stat_logo)
+            .setColor(0xFF5856D6.toInt())
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    service,
+                    0,
+                    Intent(service, MainActivity::class.java)
+                        .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT),
+                    flags
                 )
-                .setPriority(NotificationCompat.PRIORITY_LOW).apply {
-                    addAction(
-                            NotificationCompat.Action.Builder(
-                                    0, service.getText(R.string.stop), PendingIntent.getBroadcast(
-                                    service,
-                                    0,
-                                    Intent(Action.SERVICE_CLOSE).setPackage(
-                                        Application.application.packageName
-                                    ),
-                                    flags
-                            )
-                            ).build()
+            )
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .addAction(
+                NotificationCompat.Action.Builder(
+                    0, service.getText(R.string.stop),
+                    PendingIntent.getBroadcast(
+                        service, 0,
+                        Intent(Action.SERVICE_CLOSE).setPackage(Application.application.packageName),
+                        flags
                     )
-                }
+                ).build()
+            )
+    }
+
+    private fun buildRemoteViews(title: String, upload: String = "", download: String = ""): RemoteViews {
+        return RemoteViews(service.packageName, R.layout.notification_vpn).apply {
+            setTextViewText(R.id.notif_title, title.takeIf { it.isNotBlank() } ?: "MelaVPN")
+            setTextViewText(R.id.notif_upload, if (upload.isNotEmpty()) "↑  $upload" else "↑  —")
+            setTextViewText(R.id.notif_download, if (download.isNotEmpty()) "↓  $download" else "↓  —")
+        }
     }
 
     fun show(profileName: String, @StringRes contentTextId: Int) {
@@ -114,10 +118,12 @@ class ServiceNotification(private val status: MutableLiveData<Status>, private v
                 )
             )
         }
+        val title = profileName.takeIf { it.isNotBlank() } ?: "MelaVPN"
         service.startForeground(
-            notificationId, notificationBuilder
-                .setContentTitle(profileName.takeIf { it.isNotBlank() } ?: "MelaVPN")
-                .setContentText(service.getString(contentTextId)).build()
+            notificationId,
+            notificationBuilder
+                .setCustomContentView(buildRemoteViews(title))
+                .build()
         )
     }
 
@@ -140,14 +146,19 @@ class ServiceNotification(private val status: MutableLiveData<Status>, private v
         receiverRegistered = true
     }
 
-    fun updateStatus(previous:SystemInfo,status: SystemInfo) {
-        val uplink=status.uplink_total - previous.uplink_total
-        val downlink=status.downlink_total - previous.downlink_total
-        val content = "${Libbox.formatBytes(uplink)}/s ↑\t${Libbox.formatBytes(downlink)}/s ↓ \n${status.current_outbound}"
-        val title = "${status.current_profile}"
+    fun updateStatus(previous: SystemInfo, status: SystemInfo) {
+        val uplink = status.uplink_total - previous.uplink_total
+        val downlink = status.downlink_total - previous.downlink_total
+        val title = status.current_profile.takeIf { it.isNotBlank() } ?: "MelaVPN"
         Application.notificationManager.notify(
-                notificationId,
-                notificationBuilder.setContentTitle(title).setContentText(content).build()
+            notificationId,
+            notificationBuilder
+                .setCustomContentView(buildRemoteViews(
+                    title,
+                    "${Libbox.formatBytes(uplink)}/s",
+                    "${Libbox.formatBytes(downlink)}/s"
+                ))
+                .build()
         )
     }
 

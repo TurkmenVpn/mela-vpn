@@ -51,6 +51,11 @@ class PreferencesEntry<T, P> with InfraLogger {
         return false;
       }
 
+      if (mapped == null) {
+        await preferences.remove(key);
+        return true;
+      }
+
       return switch (mapped) {
         final String value => await preferences.setString(key, value),
         final bool value => await preferences.setBool(key, value),
