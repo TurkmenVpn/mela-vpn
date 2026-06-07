@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Notification — dark theme -->
-    <color name="notif_text_primary">#EEEEFF</color>
-    <color name="notif_accent">#8B89FF</color>
-    <color name="notif_upload">#FF8A75</color>
-    <color name="notif_download">#4CD87E</color>
-    <color name="notif_icon_bg">#4A48CC</color>
+    <color name="notif_text_primary">#FFFFFF</color>
+    <color name="notif_traffic">#CCCCCC</color>
+    <color name="notif_accent">#9896FF</color>
 </resources>

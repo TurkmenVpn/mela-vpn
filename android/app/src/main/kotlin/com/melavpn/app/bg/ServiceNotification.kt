@@ -103,10 +103,10 @@ class ServiceNotification(private val status: MutableLiveData<Status>, private v
     }
 
     private fun buildRemoteViews(title: String, upload: String = "", download: String = ""): RemoteViews {
+        val traffic = "↑ ${upload.ifEmpty { "—" }}   ↓ ${download.ifEmpty { "—" }}"
         return RemoteViews(service.packageName, R.layout.notification_vpn).apply {
             setTextViewText(R.id.notif_title, title.takeIf { it.isNotBlank() } ?: "MelaVPN")
-            setTextViewText(R.id.notif_upload, if (upload.isNotEmpty()) "↑  $upload" else "↑  —")
-            setTextViewText(R.id.notif_download, if (download.isNotEmpty()) "↓  $download" else "↓  —")
+            setTextViewText(R.id.notif_traffic, traffic)
         }
     }
 
