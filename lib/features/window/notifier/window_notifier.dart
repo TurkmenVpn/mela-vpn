@@ -2,9 +2,9 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:hiddify/core/preferences/general_preferences.dart';
-import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
-import 'package:hiddify/utils/utils.dart';
+import 'package:melavpn/core/preferences/general_preferences.dart';
+import 'package:melavpn/features/connection/notifier/connection_notifier.dart';
+import 'package:melavpn/utils/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:screen_retriever/screen_retriever.dart';
 import 'package:tray_manager/tray_manager.dart';
@@ -23,7 +23,7 @@ class WindowNotifier extends _$WindowNotifier with AppLogger {
 
     // if (Platform.isWindows) {
     //   loggy.debug("ensuring single instance");
-    //   await WindowsSingleInstance.ensureSingleInstance([], "Hiddify");
+    //   await WindowsSingleInstance.ensureSingleInstance([], "MelaVPN");
     // }
 
     await windowManager.ensureInitialized();

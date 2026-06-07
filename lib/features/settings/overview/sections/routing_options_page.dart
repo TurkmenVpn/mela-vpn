@@ -2,19 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hiddify/core/localization/translations.dart';
-import 'package:hiddify/core/model/region.dart';
-import 'package:hiddify/core/preferences/general_preferences.dart';
-import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
-import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
-import 'package:hiddify/features/per_app_proxy/model/per_app_proxy_mode.dart';
-import 'package:hiddify/features/per_app_proxy/overview/per_app_proxy_notifier.dart';
-import 'package:hiddify/features/route_rules/notifier/rules_notifier.dart';
-import 'package:hiddify/features/route_rules/widget/rule_tile.dart';
-import 'package:hiddify/features/settings/data/config_option_repository.dart';
-import 'package:hiddify/features/settings/widget/preference_tile.dart';
-import 'package:hiddify/singbox/model/singbox_config_enum.dart';
-import 'package:hiddify/utils/utils.dart';
+import 'package:melavpn/core/localization/translations.dart';
+import 'package:melavpn/core/model/region.dart';
+import 'package:melavpn/core/preferences/general_preferences.dart';
+import 'package:melavpn/core/router/bottom_sheets/bottom_sheets_notifier.dart';
+import 'package:melavpn/core/router/dialog/dialog_notifier.dart';
+import 'package:melavpn/core/theme/mela_colors.dart';
+import 'package:melavpn/features/per_app_proxy/model/per_app_proxy_mode.dart';
+import 'package:melavpn/features/per_app_proxy/overview/per_app_proxy_notifier.dart';
+import 'package:melavpn/features/route_rules/notifier/rules_notifier.dart';
+import 'package:melavpn/features/route_rules/widget/rule_tile.dart';
+import 'package:melavpn/features/settings/data/config_option_repository.dart';
+import 'package:melavpn/features/settings/widget/preference_tile.dart';
+import 'package:melavpn/singbox/model/singbox_config_enum.dart';
+import 'package:melavpn/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class RoutingOptionsPage extends HookConsumerWidget {
@@ -23,7 +24,6 @@ class RoutingOptionsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
-    final theme = Theme.of(context);
     final perAppProxy = ref.watch(Preferences.perAppProxyMode).enabled;
     final rules = ref.watch(rulesNotifierProvider);
     final showGeneralOptions = ref.watch(Preferences.showRouteGeneralOptions);
@@ -68,14 +68,54 @@ class RoutingOptionsPage extends HookConsumerWidget {
     ];
 
     return Scaffold(
+      backgroundColor: MelaColors.bgDeep,
       appBar: AppBar(
-        title: Text(t.pages.settings.routing.title),
-        actions: [
-          PopupMenuButton(
-            icon: const Icon(Icons.more_vert_rounded),
-            itemBuilder: (_) => rules.isEmpty ? menuItems.getRange(0, 2).toList() : menuItems,
+        backgroundColor: MelaColors.bgDeep,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: MelaColors.bgCard.withValues(alpha: 0.8),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: MelaColors.border, width: 1),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, color: MelaColors.textSecondary, size: 20),
           ),
-          const Gap(8),
+          onPressed: () => context.pop(),
+        ),
+        title: ShaderMask(
+          shaderCallback: (b) => MelaColors.primaryGradient.createShader(b),
+          child: Text(
+            t.pages.settings.routing.title,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ),
+        centerTitle: true,
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+              color: MelaColors.bgCard.withValues(alpha: 0.8),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: MelaColors.border, width: 1),
+            ),
+            child: PopupMenuButton(
+              icon: const Icon(Icons.more_vert_rounded, color: MelaColors.textSecondary, size: 20),
+              color: MelaColors.bgCard,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+                side: const BorderSide(color: MelaColors.border),
+              ),
+              itemBuilder: (_) => rules.isEmpty ? menuItems.getRange(0, 2).toList() : menuItems,
+            ),
+          ),
         ],
       ),
       body: Column(
@@ -95,12 +135,30 @@ class RoutingOptionsPage extends HookConsumerWidget {
                   )
                 else
                   Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Text(
-                        t.pages.settings.routing.routeRule.empty,
-                        style: theme.textTheme.bodyLarge!.copyWith(color: theme.colorScheme.onSurface),
-                      ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: MelaColors.bgCard,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: MelaColors.border),
+                          ),
+                          child: const Icon(Icons.alt_route_rounded, color: MelaColors.textMuted, size: 32),
+                        ),
+                        const Gap(16),
+                        Text(
+                          t.pages.settings.routing.routeRule.empty,
+                          style: const TextStyle(color: MelaColors.textSecondary, fontSize: 15),
+                          textAlign: TextAlign.center,
+                        ),
+                        const Gap(8),
+                        Text(
+                          t.pages.settings.routing.routeRule.create,
+                          style: const TextStyle(color: MelaColors.textMuted, fontSize: 12),
+                        ),
+                      ],
                     ),
                   ),
                 _ExpandableFab(
@@ -124,11 +182,18 @@ class RoutingOptionsPage extends HookConsumerWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Material(
-                        color: theme.colorScheme.primaryContainer,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(16),
-                          topRight: Radius.circular(16),
+                      Container(
+                        decoration: const BoxDecoration(
+                          color: MelaColors.bgCard,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(16),
+                            topRight: Radius.circular(16),
+                          ),
+                          border: Border(
+                            top: BorderSide(color: MelaColors.border),
+                            left: BorderSide(color: MelaColors.border),
+                            right: BorderSide(color: MelaColors.border),
+                          ),
                         ),
                         child: InkWell(
                           borderRadius: const BorderRadius.only(
@@ -138,16 +203,26 @@ class RoutingOptionsPage extends HookConsumerWidget {
                           onTap: () =>
                               ref.read(Preferences.showRouteGeneralOptions.notifier).update(!showGeneralOptions),
                           child: Container(
-                            height: 32,
-                            padding: const EdgeInsetsDirectional.only(start: 16, end: 8),
+                            height: 36,
+                            padding: const EdgeInsetsDirectional.only(start: 16, end: 12),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(t.pages.settings.routing.generalOptions.title),
+                                const Icon(Icons.tune_rounded, color: MelaColors.primary, size: 16),
+                                const Gap(6),
+                                Text(
+                                  t.pages.settings.routing.generalOptions.title,
+                                  style: const TextStyle(
+                                    color: MelaColors.textSecondary,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                                 const Gap(4),
                                 Icon(
-                                  showGeneralOptions ? Icons.arrow_drop_down_rounded : Icons.arrow_drop_up_rounded,
-                                  size: 16,
+                                  showGeneralOptions ? Icons.keyboard_arrow_down_rounded : Icons.keyboard_arrow_up_rounded,
+                                  color: MelaColors.textMuted,
+                                  size: 18,
                                 ),
                               ],
                             ),
@@ -163,78 +238,85 @@ class RoutingOptionsPage extends HookConsumerWidget {
           SizeTransition(
             sizeFactor: CurvedAnimation(parent: animationController, curve: Curves.easeInOut),
             axisAlignment: -1,
-            child: Column(
-              children: [
-                Divider(height: 4, thickness: 4, color: theme.colorScheme.primaryContainer),
-                ChoicePreferenceWidget(
-                  selected: ref.watch(ConfigOptions.region),
-                  preferences: ref.watch(ConfigOptions.region.notifier),
-                  choices: Region.values,
-                  title: t.pages.settings.routing.generalOptions.region,
-                  showFlag: true,
-                  icon: Icons.place_rounded,
-                  presentChoice: (value) => value.present(t),
-                  onChanged: (val) async {
-                    await ref.read(ConfigOptions.directDnsAddress.notifier).reset();
-                    final autoRegion = ref.read(Preferences.autoAppsSelectionRegion);
-                    final mode = ref.read(Preferences.perAppProxyMode).toAppProxy();
-                    if (autoRegion != val &&
-                        autoRegion != null &&
-                        val != Region.other &&
-                        mode != null &&
-                        PlatformUtils.isAndroid) {
-                      await ref
-                          .read(dialogNotifierProvider.notifier)
-                          .showOk(
-                            t.pages.settings.routing.generalOptions.perAppProxy.autoSelection.dialog.title,
-                            t.pages.settings.routing.generalOptions.perAppProxy.autoSelection.dialog.msg(region: val.name),
-                          );
-                      await ref.read(PerAppProxyProvider(mode).notifier).clearAutoSelected();
-                    }
-                  },
-                ),
-                if (PlatformUtils.isAndroid)
-                  ListTile(
-                    title: Text(t.pages.settings.routing.generalOptions.perAppProxy.title),
-                    leading: const Icon(Icons.apps_rounded),
-                    trailing: Switch(
-                      value: perAppProxy,
-                      onChanged: (value) async {
-                        final newMode = perAppProxy ? PerAppProxyMode.off : PerAppProxyMode.exclude;
-                        await ref.read(Preferences.perAppProxyMode.notifier).update(newMode);
-                        if (!perAppProxy && context.mounted) context.goNamed('perAppProxy');
-                      },
-                    ),
-                    onTap: () async {
-                      if (!perAppProxy) {
-                        await ref.read(Preferences.perAppProxyMode.notifier).update(PerAppProxyMode.exclude);
+            child: Container(
+              decoration: const BoxDecoration(
+                color: MelaColors.bgCard,
+                border: Border(top: BorderSide(color: MelaColors.border)),
+              ),
+              child: Column(
+                children: [
+                  ChoicePreferenceWidget(
+                    selected: ref.watch(ConfigOptions.region),
+                    preferences: ref.watch(ConfigOptions.region.notifier),
+                    choices: Region.values,
+                    title: t.pages.settings.routing.generalOptions.region,
+                    showFlag: true,
+                    icon: Icons.place_rounded,
+                    presentChoice: (value) => value.present(t),
+                    onChanged: (val) async {
+                      await ref.read(ConfigOptions.directDnsAddress.notifier).reset();
+                      final autoRegion = ref.read(Preferences.autoAppsSelectionRegion);
+                      final mode = ref.read(Preferences.perAppProxyMode).toAppProxy();
+                      if (autoRegion != val &&
+                          autoRegion != null &&
+                          val != Region.other &&
+                          mode != null &&
+                          PlatformUtils.isAndroid) {
+                        await ref
+                            .read(dialogNotifierProvider.notifier)
+                            .showOk(
+                              t.pages.settings.routing.generalOptions.perAppProxy.autoSelection.dialog.title,
+                              t.pages.settings.routing.generalOptions.perAppProxy.autoSelection.dialog.msg(region: val.name),
+                            );
+                        await ref.read(PerAppProxyProvider(mode).notifier).clearAutoSelected();
                       }
-                      if (context.mounted) context.goNamed('perAppProxy');
                     },
                   ),
-                ChoicePreferenceWidget(
-                  title: t.pages.settings.routing.generalOptions.balancerStrategy.title,
-                  icon: Icons.balance_rounded,
-                  selected: ref.watch(ConfigOptions.balancerStrategy),
-                  preferences: ref.watch(ConfigOptions.balancerStrategy.notifier),
-                  choices: BalancerStrategy.values,
-                  presentChoice: (value) => value.present(t),
-                ),
-                SwitchListTile.adaptive(
-                  title: Text(t.pages.settings.routing.generalOptions.resolveDestination),
-                  secondary: const Icon(Icons.find_replace_rounded),
-                  value: ref.watch(ConfigOptions.resolveDestination),
-                  onChanged: ref.read(ConfigOptions.resolveDestination.notifier).update,
-                ),
-                ChoicePreferenceWidget(
-                  selected: ref.watch(ConfigOptions.ipv6Mode),
-                  preferences: ref.watch(ConfigOptions.ipv6Mode.notifier),
-                  choices: IPv6Mode.values,
-                  title: t.pages.settings.routing.generalOptions.ipv6Route,
-                  icon: Icons.looks_6_rounded,
-                  presentChoice: (value) => value.present(t),
-                ),
-              ],
+                  if (PlatformUtils.isAndroid)
+                    ListTile(
+                      title: Text(t.pages.settings.routing.generalOptions.perAppProxy.title),
+                      leading: const Icon(Icons.apps_rounded, color: MelaColors.primary),
+                      trailing: Switch(
+                        value: perAppProxy,
+                        activeColor: MelaColors.primary,
+                        onChanged: (value) async {
+                          final newMode = perAppProxy ? PerAppProxyMode.off : PerAppProxyMode.exclude;
+                          await ref.read(Preferences.perAppProxyMode.notifier).update(newMode);
+                          if (!perAppProxy && context.mounted) context.goNamed('perAppProxy');
+                        },
+                      ),
+                      onTap: () async {
+                        if (!perAppProxy) {
+                          await ref.read(Preferences.perAppProxyMode.notifier).update(PerAppProxyMode.exclude);
+                        }
+                        if (context.mounted) context.goNamed('perAppProxy');
+                      },
+                    ),
+                  ChoicePreferenceWidget(
+                    title: t.pages.settings.routing.generalOptions.balancerStrategy.title,
+                    icon: Icons.balance_rounded,
+                    selected: ref.watch(ConfigOptions.balancerStrategy),
+                    preferences: ref.watch(ConfigOptions.balancerStrategy.notifier),
+                    choices: BalancerStrategy.values,
+                    presentChoice: (value) => value.present(t),
+                  ),
+                  SwitchListTile.adaptive(
+                    title: Text(t.pages.settings.routing.generalOptions.resolveDestination),
+                    secondary: const Icon(Icons.find_replace_rounded, color: MelaColors.primary),
+                    value: ref.watch(ConfigOptions.resolveDestination),
+                    activeColor: MelaColors.primary,
+                    onChanged: ref.read(ConfigOptions.resolveDestination.notifier).update,
+                  ),
+                  ChoicePreferenceWidget(
+                    selected: ref.watch(ConfigOptions.ipv6Mode),
+                    preferences: ref.watch(ConfigOptions.ipv6Mode.notifier),
+                    choices: IPv6Mode.values,
+                    title: t.pages.settings.routing.generalOptions.ipv6Route,
+                    icon: Icons.looks_6_rounded,
+                    presentChoice: (value) => value.present(t),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -296,7 +378,6 @@ class _ExpandableFabState extends State<_ExpandableFab> with SingleTickerProvide
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return Positioned.fill(
@@ -317,7 +398,7 @@ class _ExpandableFabState extends State<_ExpandableFab> with SingleTickerProvide
               ),
             ),
           // Mini FABs
-          ..._buildMenuItems(theme, isRtl),
+          ..._buildMenuItems(isRtl),
           // Main FAB
           Positioned(
             bottom: 16,
@@ -355,7 +436,7 @@ class _ExpandableFabState extends State<_ExpandableFab> with SingleTickerProvide
     );
   }
 
-  List<Widget> _buildMenuItems(ThemeData theme, bool isRtl) {
+  List<Widget> _buildMenuItems(bool isRtl) {
     final items = <Widget>[];
     for (var i = 0; i < widget.children.length; i++) {
       final child = widget.children[i];
@@ -383,28 +464,28 @@ class _ExpandableFabState extends State<_ExpandableFab> with SingleTickerProvide
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (!isRtl) _buildLabel(theme, child.label, animation),
+                      if (!isRtl) _buildLabel(child.label),
                       if (!isRtl) const Gap(12),
                       SizedBox(
                         width: 48,
                         height: 40,
                         child: Material(
-                          color: theme.colorScheme.primaryContainer,
+                          color: MelaColors.bgCard,
                           borderRadius: BorderRadius.circular(12),
                           elevation: 3,
-                          shadowColor: theme.colorScheme.shadow,
+                          shadowColor: Colors.black,
                           child: InkWell(
                             borderRadius: BorderRadius.circular(12),
                             onTap: () {
                               _close();
                               child.onTap();
                             },
-                            child: Icon(child.icon, color: theme.colorScheme.onPrimaryContainer),
+                            child: Icon(child.icon, color: MelaColors.primary),
                           ),
                         ),
                       ),
                       if (isRtl) const Gap(12),
-                      if (isRtl) _buildLabel(theme, child.label, animation),
+                      if (isRtl) _buildLabel(child.label),
                     ],
                   ),
                 ),
@@ -417,15 +498,22 @@ class _ExpandableFabState extends State<_ExpandableFab> with SingleTickerProvide
     return items;
   }
 
-  Widget _buildLabel(ThemeData theme, String label, Animation<double> animation) {
+  Widget _buildLabel(String label) {
     return Material(
-      color: theme.colorScheme.surfaceContainerHigh,
+      color: MelaColors.bgCard,
       borderRadius: BorderRadius.circular(8),
       elevation: 2,
-      shadowColor: theme.colorScheme.shadow,
-      child: Padding(
+      shadowColor: Colors.black,
+      child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: Text(label, style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurface)),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: MelaColors.border),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(color: MelaColors.textSecondary, fontSize: 12, fontWeight: FontWeight.w500),
+        ),
       ),
     );
   }

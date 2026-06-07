@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:hiddify/core/localization/translations.dart';
-import 'package:hiddify/core/model/failures.dart';
-import 'package:hiddify/features/settings/model/config_option_failure.dart';
+import 'package:melavpn/core/localization/translations.dart';
+import 'package:melavpn/core/model/failures.dart';
+import 'package:melavpn/features/settings/model/config_option_failure.dart';
 
 part 'connection_failure.freezed.dart';
 
@@ -51,7 +51,10 @@ sealed class ConnectionFailure with _$ConnectionFailure, Failure {
       InvalidConfigOption(:final message, :final configOptionFailure) =>
         configOptionFailure?.present(t) ?? (type: t.errors.singbox.invalidConfigOptions, message: message),
       InvalidConfig(:final message) => (type: t.errors.singbox.invalidConfig, message: message),
-      BackgroundCoreNotAvailable(:final message) => (type: t.errors.connectivity.core, message: message),
+      BackgroundCoreNotAvailable(:final message) => (
+        type: t.errors.connectivity.core,
+        message: message?.isNotEmpty == true ? message : "Проверьте ваш VPN-ключ или попробуйте другой сервер",
+      ),
       MissingWarpLicense() => (type: t.errors.warp.missingLicense, message: t.errors.warp.missingLicenseMsg),
     };
   }

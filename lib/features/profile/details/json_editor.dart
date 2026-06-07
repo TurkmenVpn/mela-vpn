@@ -19,8 +19,8 @@ const _popupMenuHeight = 30.0;
 const _popupMenuItemPadding = 20.0;
 const _textSpacer = SizedBox(width: 5);
 const _newKey = "new_key_added";
-const _downArrow = SizedBox(width: _expandIconWidth, child: Icon(FontAwesomeIcons.caretDown, size: 14));
-const _rightArrow = SizedBox(width: _expandIconWidth, child: Icon(FontAwesomeIcons.caretRight, size: 14));
+const _downArrow = SizedBox(width: _expandIconWidth, child: FaIcon(FontAwesomeIcons.caretDown, size: 14));
+const _rightArrow = SizedBox(width: _expandIconWidth, child: FaIcon(FontAwesomeIcons.caretRight, size: 14));
 const _newDataValue = {"string": "", "bool": false, "num": 0};
 bool _enableMoreOptions = true;
 bool _enableKeyEdit = true;
@@ -73,7 +73,7 @@ const Map<String, Map<String, dynamic>> protocolSchemaValues = {
   "dnstt": {
     "type": "dnstt",
     "tag": "dnstt-out",
-    "domain": "dnstt.hiddify.com",
+    "domain": "dnstt.melavpn.com",
     "publicKey": "publickey",
     "resolvers": ["8.8.8.8:53", "8.8.4.4:53"],
     "tunnel_per_resolver": 4,

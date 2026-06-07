@@ -1,7 +1,7 @@
 import 'package:dartx/dartx.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:hiddify/features/connection/model/connection_failure.dart';
-import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
+import 'package:melavpn/features/connection/model/connection_failure.dart';
+import 'package:melavpn/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 
 part 'core_status.freezed.dart';
 
@@ -81,9 +81,10 @@ sealed class CoreStatus with _$CoreStatus {
 
         CoreAlert.requestVPNPermission => ConnectionFailure.missingVpnPermission(message),
 
+        CoreAlert.startService => ConnectionFailure.backgroundCoreNotAvailable(message),
+
         CoreAlert.startCommandServer ||
         CoreAlert.createService ||
-        CoreAlert.startService ||
         CoreAlert.alreadyStarted ||
         CoreAlert.startFailed => ConnectionFailure.unexpected("${alert.name} - $message"),
 

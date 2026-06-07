@@ -1,11 +1,11 @@
 import 'package:circle_flags/circle_flags.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:hiddify/core/haptic/haptic_service.dart';
-import 'package:hiddify/core/localization/translations.dart';
-import 'package:hiddify/core/utils/ip_utils.dart';
-import 'package:hiddify/gen/fonts.gen.dart';
-import 'package:hiddify/utils/riverpod_utils.dart';
+import 'package:melavpn/core/haptic/haptic_service.dart';
+import 'package:melavpn/core/localization/translations.dart';
+import 'package:melavpn/core/utils/ip_utils.dart';
+import 'package:melavpn/gen/fonts.gen.dart';
+import 'package:melavpn/utils/riverpod_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import "package:simple_icons/simple_icons.dart";
 
@@ -160,9 +160,7 @@ const Map<String, OrgIconData> organizationData = {
   "cloudflare": OrgIconData(SimpleIcons.cloudflare, SimpleIconColors.cloudflare),
   "hetzner": OrgIconData(SimpleIcons.hetzner, SimpleIconColors.hetzner),
   "ovh": OrgIconData(SimpleIcons.ovh, SimpleIconColors.ovh),
-  "azure": OrgIconData(SimpleIcons.microsoftazure, SimpleIconColors.microsoftazure),
-  "amazon": OrgIconData(SimpleIcons.amazonaws, SimpleIconColors.amazonaws),
-  "oracle": OrgIconData(SimpleIcons.oracle, SimpleIconColors.oracle),
+  "amazon": OrgIconData(SimpleIcons.amazonwebservices, SimpleIconColors.amazonwebservices),
   "fastly": OrgIconData(SimpleIcons.fastly, SimpleIconColors.fastly),
   "digitalocean": OrgIconData(SimpleIcons.digitalocean, SimpleIconColors.digitalocean),
   "alibaba": OrgIconData(SimpleIcons.alibabacloud, SimpleIconColors.alibabacloud),

@@ -4,7 +4,7 @@ analyzer:
   plugins:
     - custom_lint
   exclude:
-    - "hiddify-core/**"
+    - "melavpn-core/**"
     - "**.g.dart"
     - "lib/gen/**"
   errors:

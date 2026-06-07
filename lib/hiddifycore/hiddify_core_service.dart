@@ -4,36 +4,36 @@ import 'dart:math';
 
 import 'package:fpdart/fpdart.dart';
 import 'package:grpc/grpc.dart';
-import 'package:hiddify/core/directories/directories_provider.dart';
-import 'package:hiddify/core/model/directories.dart';
-import 'package:hiddify/core/notification/in_app_notification_controller.dart';
-import 'package:hiddify/core/preferences/general_preferences.dart';
-import 'package:hiddify/features/connection/model/connection_failure.dart';
-import 'package:hiddify/features/settings/data/config_option_repository.dart';
-import 'package:hiddify/hiddifycore/core_interface/core_interface.dart';
-import 'package:hiddify/hiddifycore/generated/v2/hcommon/common.pb.dart';
-import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
-import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore_service.pbgrpc.dart';
-import 'package:hiddify/hiddifycore/init_signal.dart';
-import 'package:hiddify/singbox/model/singbox_config_option.dart';
-import 'package:hiddify/features/log/model/log_level.dart' as config_log_level;
-import 'package:hiddify/singbox/model/core_status.dart';
-import 'package:hiddify/singbox/model/warp_account.dart';
+import 'package:melavpn/core/directories/directories_provider.dart';
+import 'package:melavpn/core/model/directories.dart';
+import 'package:melavpn/core/notification/in_app_notification_controller.dart';
+import 'package:melavpn/core/preferences/general_preferences.dart';
+import 'package:melavpn/features/connection/model/connection_failure.dart';
+import 'package:melavpn/features/settings/data/config_option_repository.dart';
+import 'package:melavpn/hiddifycore/core_interface/core_interface.dart';
+import 'package:melavpn/hiddifycore/generated/v2/hcommon/common.pb.dart';
+import 'package:melavpn/hiddifycore/generated/v2/hcore/hcore.pb.dart';
+import 'package:melavpn/hiddifycore/generated/v2/hcore/hcore_service.pbgrpc.dart';
+import 'package:melavpn/hiddifycore/init_signal.dart';
+import 'package:melavpn/singbox/model/singbox_config_option.dart';
+import 'package:melavpn/features/log/model/log_level.dart' as config_log_level;
+import 'package:melavpn/singbox/model/core_status.dart';
+import 'package:melavpn/singbox/model/warp_account.dart';
 
-import 'package:hiddify/hiddifycore/core_interface/core_interface_wrapper_stub.dart'
-    if (dart.library.io) 'package:hiddify/hiddifycore/core_interface/core_interface_wrapper.dart';
-import 'package:hiddify/utils/custom_loggers.dart';
-import 'package:hiddify/utils/platform_utils.dart';
+import 'package:melavpn/hiddifycore/core_interface/core_interface_wrapper_stub.dart'
+    if (dart.library.io) 'package:melavpn/hiddifycore/core_interface/core_interface_wrapper.dart';
+import 'package:melavpn/utils/custom_loggers.dart';
+import 'package:melavpn/utils/platform_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loggy/loggy.dart' as loggyl;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 
-class HiddifyCoreService with InfraLogger {
-  HiddifyCoreService(this.ref);
+class MelaVPNCoreService with InfraLogger {
+  MelaVPNCoreService(this.ref);
   final Ref ref;
 
-  // CoreHiddifyCoreService() {}
+  // CoreMelaVPNCoreService() {}
   final core = getCoreInterface();
 
   CoreStatus currentState = const CoreStatus.stopped();
@@ -52,7 +52,7 @@ class HiddifyCoreService with InfraLogger {
           ref.read(inAppNotificationControllerProvider).showErrorToast(e);
         })
         .map((_) {
-          loggy.info("Hiddify-core setup done");
+          loggy.info("MelaVPN-core setup done");
           ref.read(coreRestartSignalProvider.notifier).restart();
         })
         .run();
@@ -117,11 +117,11 @@ class HiddifyCoreService with InfraLogger {
       loggy.debug("changing options");
       // latestOptions = options;
       try {
-        final res = await core.fgClient.changeHiddifySettings(
+        final res = await core.fgClient.changeMelaVPNSettings(
           ChangeHiddifySettingsRequest(hiddifySettingsJson: jsonEncode(options.toJson())),
         );
         if (res.messageType != MessageType.EMPTY) return left("${res.messageType} ${res.message}");
-        await core.bgClient.changeHiddifySettings(
+        await core.bgClient.changeMelaVPNSettings(
           ChangeHiddifySettingsRequest(hiddifySettingsJson: jsonEncode(options.toJson())),
         );
       } on GrpcError catch (e) {
@@ -150,7 +150,7 @@ class HiddifyCoreService with InfraLogger {
         await startListeningStatus("bg", core.bgClient);
       }
       // if (latestOptions != null) {
-      //   await core.bgClient.changeHiddifySettings(
+      //   await core.bgClient.changeMelaVPNSettings(
       //     ChangeHiddifySettingsRequest(
       //       hiddifySettingsJson: jsonEncode(latestOptions!.toJson()),
       //     ),
@@ -159,7 +159,7 @@ class HiddifyCoreService with InfraLogger {
       // final content = await File(path).readAsString();
       // loggy.debug("starting with content: $content");
       try {
-        final res = await core.bgClient.start(
+        final res = await core.bgClient.startService(
           StartRequest(
             configPath: path,
             configName: name,
@@ -185,14 +185,7 @@ class HiddifyCoreService with InfraLogger {
       } on GrpcError catch (e) {
         loggy.error("failed to start bg core: $e");
         ref.read(coreRestartSignalProvider.notifier).restart();
-        if (e.code == StatusCode.unavailable) {
-          return left(const ConnectionFailure.unexpected("background core is not started yet!"));
-        }
-        // throw InvalidConfig(e.message);
-        // throw DioException.connectionError(requestOptions: RequestOptions(), reason: e.codeName, error: e);
-
-        // throw DioException(requestOptions: RequestOptions(), error: e);
-        return left(const ConnectionFailure.unexpected("failed to start background core"));
+        return left(ConnectionFailure.backgroundCoreNotAvailable("gRPC ${e.code}: ${e.message ?? e.toString()}"));
       }
 
       // if (res.messageType != MessageType.EMPTY) return left(res);

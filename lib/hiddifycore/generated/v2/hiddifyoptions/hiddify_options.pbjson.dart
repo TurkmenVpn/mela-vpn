@@ -1,6 +1,6 @@
 ///
 //  Generated code. Do not modify.
-//  source: v2/hiddifyoptions/hiddify_options.proto
+//  source: v2/melavpnoptions/melavpn_options.proto
 //
 // @dart = 2.12
 // ignore_for_file: annotate_overrides,camel_case_types,constant_identifier_names,deprecated_member_use_from_same_package,directives_ordering,library_prefixes,non_constant_identifier_names,prefer_final_fields,return_of_invalid_type,unnecessary_const,unnecessary_import,unnecessary_this,unused_import,unused_shown_name
@@ -22,9 +22,9 @@ const DomainStrategy$json = const {
 
 /// Descriptor for `DomainStrategy`. Decode as a `google.protobuf.EnumDescriptorProto`.
 final $typed_data.Uint8List domainStrategyDescriptor = $convert.base64Decode('Cg5Eb21haW5TdHJhdGVneRIJCgVhc19pcxAAEg8KC3ByZWZlcl9pcHY0EAESDwoLcHJlZmVyX2lwdjYQAhINCglpcHY0X29ubHkQAxINCglpcHY2X29ubHkQBA==');
-@$core.Deprecated('Use hiddifyOptionsDescriptor instead')
-const HiddifyOptions$json = const {
-  '1': 'HiddifyOptions',
+@$core.Deprecated('Use melavpnOptionsDescriptor instead')
+const MelaVPNOptions$json = const {
+  '1': 'MelaVPNOptions',
   '2': const [
     const {'1': 'enable_full_config', '3': 1, '4': 1, '5': 8, '10': 'enableFullConfig'},
     const {'1': 'log_level', '3': 2, '4': 1, '5': 9, '10': 'logLevel'},
@@ -35,20 +35,20 @@ const HiddifyOptions$json = const {
     const {'1': 'region', '3': 7, '4': 1, '5': 9, '10': 'region'},
     const {'1': 'block_ads', '3': 8, '4': 1, '5': 8, '10': 'blockAds'},
     const {'1': 'use_xray_core_when_possible', '3': 9, '4': 1, '5': 8, '10': 'useXrayCoreWhenPossible'},
-    const {'1': 'rules', '3': 10, '4': 3, '5': 11, '6': '.hiddifyoptions.Rule', '10': 'rules'},
-    const {'1': 'warp', '3': 11, '4': 1, '5': 11, '6': '.hiddifyoptions.WarpOptions', '10': 'warp'},
-    const {'1': 'warp2', '3': 12, '4': 1, '5': 11, '6': '.hiddifyoptions.WarpOptions', '10': 'warp2'},
-    const {'1': 'mux', '3': 13, '4': 1, '5': 11, '6': '.hiddifyoptions.MuxOptions', '10': 'mux'},
-    const {'1': 'tls_tricks', '3': 14, '4': 1, '5': 11, '6': '.hiddifyoptions.TLSTricks', '10': 'tlsTricks'},
-    const {'1': 'dns_options', '3': 15, '4': 1, '5': 11, '6': '.hiddifyoptions.DNSOptions', '10': 'dnsOptions'},
-    const {'1': 'inbound_options', '3': 16, '4': 1, '5': 11, '6': '.hiddifyoptions.InboundOptions', '10': 'inboundOptions'},
-    const {'1': 'url_test_options', '3': 17, '4': 1, '5': 11, '6': '.hiddifyoptions.URLTestOptions', '10': 'urlTestOptions'},
-    const {'1': 'route_options', '3': 18, '4': 1, '5': 11, '6': '.hiddifyoptions.RouteOptions', '10': 'routeOptions'},
+    const {'1': 'rules', '3': 10, '4': 3, '5': 11, '6': '.melavpnoptions.Rule', '10': 'rules'},
+    const {'1': 'warp', '3': 11, '4': 1, '5': 11, '6': '.melavpnoptions.WarpOptions', '10': 'warp'},
+    const {'1': 'warp2', '3': 12, '4': 1, '5': 11, '6': '.melavpnoptions.WarpOptions', '10': 'warp2'},
+    const {'1': 'mux', '3': 13, '4': 1, '5': 11, '6': '.melavpnoptions.MuxOptions', '10': 'mux'},
+    const {'1': 'tls_tricks', '3': 14, '4': 1, '5': 11, '6': '.melavpnoptions.TLSTricks', '10': 'tlsTricks'},
+    const {'1': 'dns_options', '3': 15, '4': 1, '5': 11, '6': '.melavpnoptions.DNSOptions', '10': 'dnsOptions'},
+    const {'1': 'inbound_options', '3': 16, '4': 1, '5': 11, '6': '.melavpnoptions.InboundOptions', '10': 'inboundOptions'},
+    const {'1': 'url_test_options', '3': 17, '4': 1, '5': 11, '6': '.melavpnoptions.URLTestOptions', '10': 'urlTestOptions'},
+    const {'1': 'route_options', '3': 18, '4': 1, '5': 11, '6': '.melavpnoptions.RouteOptions', '10': 'routeOptions'},
   ],
 };
 
-/// Descriptor for `HiddifyOptions`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List hiddifyOptionsDescriptor = $convert.base64Decode('Cg5IaWRkaWZ5T3B0aW9ucxIsChJlbmFibGVfZnVsbF9jb25maWcYASABKAhSEGVuYWJsZUZ1bGxDb25maWcSGwoJbG9nX2xldmVsGAIgASgJUghsb2dMZXZlbBIZCghsb2dfZmlsZRgDIAEoCVIHbG9nRmlsZRIoChBlbmFibGVfY2xhc2hfYXBpGAQgASgIUg5lbmFibGVDbGFzaEFwaRIkCg5jbGFzaF9hcGlfcG9ydBgFIAEoDVIMY2xhc2hBcGlQb3J0Eh0KCndlYl9zZWNyZXQYBiABKAlSCXdlYlNlY3JldBIWCgZyZWdpb24YByABKAlSBnJlZ2lvbhIbCglibG9ja19hZHMYCCABKAhSCGJsb2NrQWRzEjwKG3VzZV94cmF5X2NvcmVfd2hlbl9wb3NzaWJsZRgJIAEoCFIXdXNlWHJheUNvcmVXaGVuUG9zc2libGUSKgoFcnVsZXMYCiADKAsyFC5oaWRkaWZ5b3B0aW9ucy5SdWxlUgVydWxlcxIvCgR3YXJwGAsgASgLMhsuaGlkZGlmeW9wdGlvbnMuV2FycE9wdGlvbnNSBHdhcnASMQoFd2FycDIYDCABKAsyGy5oaWRkaWZ5b3B0aW9ucy5XYXJwT3B0aW9uc1IFd2FycDISLAoDbXV4GA0gASgLMhouaGlkZGlmeW9wdGlvbnMuTXV4T3B0aW9uc1IDbXV4EjgKCnRsc190cmlja3MYDiABKAsyGS5oaWRkaWZ5b3B0aW9ucy5UTFNUcmlja3NSCXRsc1RyaWNrcxI7CgtkbnNfb3B0aW9ucxgPIAEoCzIaLmhpZGRpZnlvcHRpb25zLkROU09wdGlvbnNSCmRuc09wdGlvbnMSRwoPaW5ib3VuZF9vcHRpb25zGBAgASgLMh4uaGlkZGlmeW9wdGlvbnMuSW5ib3VuZE9wdGlvbnNSDmluYm91bmRPcHRpb25zEkgKEHVybF90ZXN0X29wdGlvbnMYESABKAsyHi5oaWRkaWZ5b3B0aW9ucy5VUkxUZXN0T3B0aW9uc1IOdXJsVGVzdE9wdGlvbnMSQQoNcm91dGVfb3B0aW9ucxgSIAEoCzIcLmhpZGRpZnlvcHRpb25zLlJvdXRlT3B0aW9uc1IMcm91dGVPcHRpb25z');
+/// Descriptor for `MelaVPNOptions`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List melavpnOptionsDescriptor = $convert.base64Decode('Cg5IaWRkaWZ5T3B0aW9ucxIsChJlbmFibGVfZnVsbF9jb25maWcYASABKAhSEGVuYWJsZUZ1bGxDb25maWcSGwoJbG9nX2xldmVsGAIgASgJUghsb2dMZXZlbBIZCghsb2dfZmlsZRgDIAEoCVIHbG9nRmlsZRIoChBlbmFibGVfY2xhc2hfYXBpGAQgASgIUg5lbmFibGVDbGFzaEFwaRIkCg5jbGFzaF9hcGlfcG9ydBgFIAEoDVIMY2xhc2hBcGlQb3J0Eh0KCndlYl9zZWNyZXQYBiABKAlSCXdlYlNlY3JldBIWCgZyZWdpb24YByABKAlSBnJlZ2lvbhIbCglibG9ja19hZHMYCCABKAhSCGJsb2NrQWRzEjwKG3VzZV94cmF5X2NvcmVfd2hlbl9wb3NzaWJsZRgJIAEoCFIXdXNlWHJheUNvcmVXaGVuUG9zc2libGUSKgoFcnVsZXMYCiADKAsyFC5oaWRkaWZ5b3B0aW9ucy5SdWxlUgVydWxlcxIvCgR3YXJwGAsgASgLMhsuaGlkZGlmeW9wdGlvbnMuV2FycE9wdGlvbnNSBHdhcnASMQoFd2FycDIYDCABKAsyGy5oaWRkaWZ5b3B0aW9ucy5XYXJwT3B0aW9uc1IFd2FycDISLAoDbXV4GA0gASgLMhouaGlkZGlmeW9wdGlvbnMuTXV4T3B0aW9uc1IDbXV4EjgKCnRsc190cmlja3MYDiABKAsyGS5oaWRkaWZ5b3B0aW9ucy5UTFNUcmlja3NSCXRsc1RyaWNrcxI7CgtkbnNfb3B0aW9ucxgPIAEoCzIaLmhpZGRpZnlvcHRpb25zLkROU09wdGlvbnNSCmRuc09wdGlvbnMSRwoPaW5ib3VuZF9vcHRpb25zGBAgASgLMh4uaGlkZGlmeW9wdGlvbnMuSW5ib3VuZE9wdGlvbnNSDmluYm91bmRPcHRpb25zEkgKEHVybF90ZXN0X29wdGlvbnMYESABKAsyHi5oaWRkaWZ5b3B0aW9ucy5VUkxUZXN0T3B0aW9uc1IOdXJsVGVzdE9wdGlvbnMSQQoNcm91dGVfb3B0aW9ucxgSIAEoCzIcLmhpZGRpZnlvcHRpb25zLlJvdXRlT3B0aW9uc1IMcm91dGVPcHRpb25z');
 @$core.Deprecated('Use intRangeDescriptor instead')
 const IntRange$json = const {
   '1': 'IntRange',
@@ -65,9 +65,9 @@ const DNSOptions$json = const {
   '1': 'DNSOptions',
   '2': const [
     const {'1': 'remote_dns_address', '3': 1, '4': 1, '5': 9, '10': 'remoteDnsAddress'},
-    const {'1': 'remote_dns_domain_strategy', '3': 2, '4': 1, '5': 14, '6': '.hiddifyoptions.DomainStrategy', '10': 'remoteDnsDomainStrategy'},
+    const {'1': 'remote_dns_domain_strategy', '3': 2, '4': 1, '5': 14, '6': '.melavpnoptions.DomainStrategy', '10': 'remoteDnsDomainStrategy'},
     const {'1': 'direct_dns_address', '3': 3, '4': 1, '5': 9, '10': 'directDnsAddress'},
-    const {'1': 'direct_dns_domain_strategy', '3': 4, '4': 1, '5': 14, '6': '.hiddifyoptions.DomainStrategy', '10': 'directDnsDomainStrategy'},
+    const {'1': 'direct_dns_domain_strategy', '3': 4, '4': 1, '5': 14, '6': '.melavpnoptions.DomainStrategy', '10': 'directDnsDomainStrategy'},
     const {'1': 'independent_dns_cache', '3': 5, '4': 1, '5': 8, '10': 'independentDnsCache'},
     const {'1': 'enable_fake_dns', '3': 6, '4': 1, '5': 8, '10': 'enableFakeDns'},
     const {'1': 'enable_dns_routing', '3': 7, '4': 1, '5': 8, '10': 'enableDnsRouting'},
@@ -111,7 +111,7 @@ const RouteOptions$json = const {
   '1': 'RouteOptions',
   '2': const [
     const {'1': 'resolve_destination', '3': 1, '4': 1, '5': 8, '10': 'resolveDestination'},
-    const {'1': 'ipv6_mode', '3': 2, '4': 1, '5': 14, '6': '.hiddifyoptions.DomainStrategy', '10': 'ipv6Mode'},
+    const {'1': 'ipv6_mode', '3': 2, '4': 1, '5': 14, '6': '.melavpnoptions.DomainStrategy', '10': 'ipv6Mode'},
     const {'1': 'bypass_lan', '3': 3, '4': 1, '5': 8, '10': 'bypassLan'},
     const {'1': 'allow_connection_from_lan', '3': 4, '4': 1, '5': 8, '10': 'allowConnectionFromLan'},
   ],
@@ -124,11 +124,11 @@ const TLSTricks$json = const {
   '1': 'TLSTricks',
   '2': const [
     const {'1': 'enable_fragment', '3': 1, '4': 1, '5': 8, '10': 'enableFragment'},
-    const {'1': 'fragment_size', '3': 2, '4': 1, '5': 11, '6': '.hiddifyoptions.IntRange', '10': 'fragmentSize'},
-    const {'1': 'fragment_sleep', '3': 3, '4': 1, '5': 11, '6': '.hiddifyoptions.IntRange', '10': 'fragmentSleep'},
+    const {'1': 'fragment_size', '3': 2, '4': 1, '5': 11, '6': '.melavpnoptions.IntRange', '10': 'fragmentSize'},
+    const {'1': 'fragment_sleep', '3': 3, '4': 1, '5': 11, '6': '.melavpnoptions.IntRange', '10': 'fragmentSleep'},
     const {'1': 'mixed_sni_case', '3': 4, '4': 1, '5': 8, '10': 'mixedSniCase'},
     const {'1': 'enable_padding', '3': 5, '4': 1, '5': 8, '10': 'enablePadding'},
-    const {'1': 'padding_size', '3': 6, '4': 1, '5': 11, '6': '.hiddifyoptions.IntRange', '10': 'paddingSize'},
+    const {'1': 'padding_size', '3': 6, '4': 1, '5': 11, '6': '.melavpnoptions.IntRange', '10': 'paddingSize'},
   ],
 };
 
@@ -154,14 +154,14 @@ const WarpOptions$json = const {
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'enable_warp', '3': 2, '4': 1, '5': 8, '10': 'enableWarp'},
     const {'1': 'mode', '3': 3, '4': 1, '5': 9, '10': 'mode'},
-    const {'1': 'wireguard_config', '3': 5, '4': 1, '5': 11, '6': '.hiddifyoptions.WarpWireguardConfig', '10': 'wireguardConfig'},
+    const {'1': 'wireguard_config', '3': 5, '4': 1, '5': 11, '6': '.melavpnoptions.WarpWireguardConfig', '10': 'wireguardConfig'},
     const {'1': 'fake_packets', '3': 6, '4': 1, '5': 9, '10': 'fakePackets'},
-    const {'1': 'fake_packet_size', '3': 7, '4': 1, '5': 11, '6': '.hiddifyoptions.IntRange', '10': 'fakePacketSize'},
-    const {'1': 'fake_packet_delay', '3': 8, '4': 1, '5': 11, '6': '.hiddifyoptions.IntRange', '10': 'fakePacketDelay'},
+    const {'1': 'fake_packet_size', '3': 7, '4': 1, '5': 11, '6': '.melavpnoptions.IntRange', '10': 'fakePacketSize'},
+    const {'1': 'fake_packet_delay', '3': 8, '4': 1, '5': 11, '6': '.melavpnoptions.IntRange', '10': 'fakePacketDelay'},
     const {'1': 'fake_packet_mode', '3': 9, '4': 1, '5': 9, '10': 'fakePacketMode'},
     const {'1': 'clean_ip', '3': 10, '4': 1, '5': 9, '10': 'cleanIp'},
     const {'1': 'clean_port', '3': 11, '4': 1, '5': 13, '10': 'cleanPort'},
-    const {'1': 'account', '3': 12, '4': 1, '5': 11, '6': '.hiddifyoptions.WarpAccount', '10': 'account'},
+    const {'1': 'account', '3': 12, '4': 1, '5': 11, '6': '.melavpnoptions.WarpAccount', '10': 'account'},
   ],
 };
 

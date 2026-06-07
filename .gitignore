@@ -67,4 +67,4 @@ app.*.map.json
 
 # Windows Self-Signed for msix
 windows/sign.pfx
-windows/sign.cer
+windows/sign.cerflutter_linux_3.44.1-stable.tar.xz

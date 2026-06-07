@@ -18,7 +18,7 @@ const ProfileEntity$json = const {
     const {'1': 'last_update', '3': 5, '4': 1, '5': 3, '10': 'lastUpdate'},
     const {'1': 'options', '3': 6, '4': 1, '5': 11, '6': '.profile.ProfileOptions', '10': 'options'},
     const {'1': 'sub_info', '3': 7, '4': 1, '5': 11, '6': '.profile.SubscriptionInfo', '10': 'subInfo'},
-    const {'1': 'override_hiddify_options', '3': 8, '4': 1, '5': 11, '6': '.hiddifyoptions.HiddifyOptions', '10': 'overrideHiddifyOptions'},
+    const {'1': 'override_melavpn_options', '3': 8, '4': 1, '5': 11, '6': '.melavpnoptions.MelaVPNOptions', '10': 'overrideMelaVPNOptions'},
   ],
 };
 

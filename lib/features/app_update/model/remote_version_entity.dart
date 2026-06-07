@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:hiddify/core/model/environment.dart';
+import 'package:melavpn/core/model/environment.dart';
 
 part 'remote_version_entity.freezed.dart';
 
@@ -15,6 +15,7 @@ class RemoteVersionEntity with _$RemoteVersionEntity {
     required String url,
     required DateTime publishedAt,
     required Environment flavor,
+    String? apkUrl,
   }) = _RemoteVersionEntity;
 
   String get presentVersion => flavor == Environment.prod ? version : "$version ${flavor.name}";

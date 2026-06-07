@@ -4,9 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hiddify/core/localization/translations.dart';
-import 'package:hiddify/core/model/constants.dart';
-import 'package:hiddify/utils/uri_utils.dart';
+import 'package:melavpn/core/localization/translations.dart';
+import 'package:melavpn/core/model/constants.dart';
+import 'package:melavpn/utils/uri_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class WarpLicenseDialog extends HookConsumerWidget {

@@ -1,17 +1,17 @@
 import 'dart:io';
 
-import 'package:hiddify/core/haptic/haptic_service.dart';
-import 'package:hiddify/core/localization/translations.dart';
-import 'package:hiddify/core/preferences/general_preferences.dart';
-import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
-import 'package:hiddify/features/connection/data/connection_data_providers.dart';
-import 'package:hiddify/features/connection/data/connection_repository.dart';
-import 'package:hiddify/features/connection/model/connection_failure.dart';
-import 'package:hiddify/features/connection/model/connection_status.dart';
-import 'package:hiddify/features/profile/model/profile_entity.dart';
-import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
-import 'package:hiddify/hiddifycore/init_signal.dart';
-import 'package:hiddify/utils/utils.dart';
+import 'package:melavpn/core/haptic/haptic_service.dart';
+import 'package:melavpn/core/localization/translations.dart';
+import 'package:melavpn/core/preferences/general_preferences.dart';
+import 'package:melavpn/core/router/dialog/dialog_notifier.dart';
+import 'package:melavpn/features/connection/data/connection_data_providers.dart';
+import 'package:melavpn/features/connection/data/connection_repository.dart';
+import 'package:melavpn/features/connection/model/connection_failure.dart';
+import 'package:melavpn/features/connection/model/connection_status.dart';
+import 'package:melavpn/features/profile/model/profile_entity.dart';
+import 'package:melavpn/features/profile/notifier/active_profile_notifier.dart';
+import 'package:melavpn/hiddifycore/init_signal.dart';
+import 'package:melavpn/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -141,21 +141,40 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
       loggy.info("no active profile, not connecting");
       return;
     }
-    await _connectionRepo.connect(activeProfile, ref.read(Preferences.disableMemoryLimit)).mapLeft((
-      ConnectionFailure err,
-    ) async {
-      loggy.warning("error connecting", err);
-      //Go err is not normal object to see the go errors are string and need to be dumped
-      await ref
-          .read(dialogNotifierProvider.notifier)
-          .showCustomAlertFromErr(err.present(ref.read(translationsProvider).requireValue));
-      loggy.warning(err);
-      if (err.toString().contains("panic")) {
-        await Sentry.captureException(Exception(err.toString()));
-      }
-      await ref.read(Preferences.startedByUser.notifier).update(false);
-      state = AsyncError(err, StackTrace.current);
-    }).run();
+    final result = await _connectionRepo
+        .connect(activeProfile, ref.read(Preferences.disableMemoryLimit))
+        .run();
+
+    await result.fold(
+      (ConnectionFailure err) async {
+        if (err is BackgroundCoreNotAvailable) {
+          loggy.warning("BackgroundCoreNotAvailable on first attempt, retrying in 1s...");
+          await Future.delayed(const Duration(seconds: 1));
+          await _connectionRepo
+              .connect(activeProfile, ref.read(Preferences.disableMemoryLimit))
+              .mapLeft((retryErr) async {
+                await _handleConnectError(retryErr);
+              })
+              .run();
+          return;
+        }
+        await _handleConnectError(err);
+      },
+      (_) {},
+    );
+  }
+
+  Future<void> _handleConnectError(ConnectionFailure err) async {
+    loggy.warning("error connecting", err);
+    await ref
+        .read(dialogNotifierProvider.notifier)
+        .showCustomAlertFromErr(err.present(ref.read(translationsProvider).requireValue));
+    loggy.warning(err);
+    if (err.toString().contains("panic")) {
+      await Sentry.captureException(Exception(err.toString()));
+    }
+    await ref.read(Preferences.startedByUser.notifier).update(false);
+    state = AsyncError(err, StackTrace.current);
   }
 
   Future<void> _disconnect() async {

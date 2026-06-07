@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hiddify/core/localization/translations.dart';
-import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
-import 'package:hiddify/features/connection/model/connection_status.dart';
-import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
-import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
-import 'package:hiddify/features/proxy/active/ip_widget.dart';
-import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
-import 'package:hiddify/utils/custom_loggers.dart';
+import 'package:melavpn/core/localization/translations.dart';
+import 'package:melavpn/core/router/dialog/dialog_notifier.dart';
+import 'package:melavpn/core/theme/mela_colors.dart';
+import 'package:melavpn/features/connection/model/connection_status.dart';
+import 'package:melavpn/features/connection/notifier/connection_notifier.dart';
+import 'package:melavpn/features/proxy/active/active_proxy_notifier.dart';
+import 'package:melavpn/features/proxy/active/ip_widget.dart';
+import 'package:melavpn/hiddifycore/generated/v2/hcore/hcore.pb.dart';
+import 'package:melavpn/utils/custom_loggers.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
@@ -16,98 +18,106 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final connectionState = ref.watch(
-      connectionNotifierProvider.select((value) => value.valueOrNull ?? const Disconnected()),
+      connectionNotifierProvider.select((v) => v.valueOrNull ?? const Disconnected()),
     );
-
-    final activeProxy = ref.watch(activeProxyNotifierProvider.select((value) => value.valueOrNull));
+    final activeProxy = ref.watch(activeProxyNotifierProvider.select((v) => v.valueOrNull));
     final t = ref.watch(translationsProvider).requireValue;
 
-    // Early return if required data is not available
     if (connectionState != const Connected() || activeProxy == null) {
       return const SizedBox.shrink();
     }
 
-    final theme = Theme.of(context);
-
-    // Handle URL test in a way that won't trigger during build
     Future<void> handleUrlTest() async {
       try {
         if (!context.mounted) return;
-        await ref.read(activeProxyNotifierProvider.notifier).urlTest("");
+        await ref.read(activeProxyNotifierProvider.notifier).urlTest('');
       } catch (e) {
-        // Handle error here
-        loggy.error("Error during URL test: $e");
+        loggy.error('Error during URL test: $e');
       }
     }
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.background.withOpacity(1),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(color: theme.colorScheme.secondary.withOpacity(.21), blurRadius: 10, offset: const Offset(0, 4)),
-        ],
-      ),
-      child: InkWell(
-        onTap: () {
-          context.goNamed('proxies');
-        },
+    return GestureDetector(
+      onTap: () => context.goNamed('proxies'),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: MelaColors.surf(context).withValues(alpha: 0.7),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: MelaColors.brd(context).withValues(alpha: 0.5), width: 1),
+        ),
         child: Row(
           children: [
-            InkWell(
+            GestureDetector(
               onTap: () async {
                 await handleUrlTest();
-                await ref.read(dialogNotifierProvider.notifier).showProxyInfo(outboundInfo: activeProxy);
+                if (context.mounted) {
+                  await ref.read(dialogNotifierProvider.notifier).showProxyInfo(outboundInfo: activeProxy);
+                }
               },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: MelaColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: MelaColors.primary.withValues(alpha: 0.2), width: 1),
+                ),
                 child: IPCountryFlag(
                   countryCode: activeProxy.ipinfo.countryCode,
                   organization: activeProxy.ipinfo.org,
-                  size: 48,
+                  size: 36,
                 ),
               ),
             ),
+            const Gap(12),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Semantics(
-                    label: t.pages.proxies.activeProxy,
-                    child: Text(
-                      // getRealOutboundTag(activeProxy),
-                      activeProxy.tagDisplay,
-                      style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  Text(
+                    activeProxy.tagDisplay,
+                    style: TextStyle(
+                      color: MelaColors.textPrim(context),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  const Gap(4),
                   Row(
                     children: [
                       if (activeProxy.ipinfo.ip.isNotEmpty)
-                        IPText(ip: activeProxy.ipinfo.ip, onLongPress: handleUrlTest, constrained: true)
+                        Flexible(
+                          child: IPText(
+                            ip: activeProxy.ipinfo.ip,
+                            onLongPress: handleUrlTest,
+                            constrained: true,
+                          ),
+                        )
                       else
-                        UnknownIPText(text: t.pages.proxies.unknownIp, onTap: handleUrlTest),
-                      const Spacer(),
-                      Text(
-                        // getRealOutboundTag(activeProxy),
-                        activeProxy.type,
-                        style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                        Flexible(
+                          child: UnknownIPText(text: t.pages.proxies.unknownIp, onTap: handleUrlTest),
+                        ),
+                      const Gap(8),
+                      _ProxyTypeBadge(type: activeProxy.type),
                     ],
                   ),
                 ],
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Icon(Icons.arrow_forward_ios, color: Colors.blue),
+            const Gap(8),
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: MelaColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: MelaColors.primary,
+                size: 14,
+              ),
             ),
           ],
         ),
@@ -116,73 +126,38 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
   }
 }
 
+class _ProxyTypeBadge extends StatelessWidget {
+  const _ProxyTypeBadge({required this.type});
+  final String type;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: MelaColors.secondary.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: MelaColors.secondary.withValues(alpha: 0.25), width: 1),
+      ),
+      child: Text(
+        type,
+        style: const TextStyle(
+          color: MelaColors.secondary,
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+}
+
 String getRealOutboundTag(OutboundInfo group) {
   var tag = group.tagDisplay;
-  if (group.groupSelectedTagDisplay != "" && group.groupSelectedTagDisplay != tag) {
-    tag = "$tag → ${group.groupSelectedTagDisplay}";
+  if (group.groupSelectedTagDisplay != '' && group.groupSelectedTagDisplay != tag) {
+    tag = '$tag → ${group.groupSelectedTagDisplay}';
   }
   return tag;
 }
-
-// class _StatsColumn extends HookConsumerWidget {
-//   const _StatsColumn();
-
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     final t = ref.watch(translationsProvider).requireValue;
-//     final stats = ref.watch(statsNotifierProvider).value;
-
-//     return Directionality(
-//       textDirection: TextDirection.values[(Directionality.of(context).index + 1) % TextDirection.values.length],
-//       child: Flexible(
-//         child: Column(
-//           children: [
-//             _InfoProp(
-//               icon: FluentIcons.arrow_bidirectional_up_down_20_regular,
-//               text: (stats?.downlinkTotal ?? 0).size(),
-//               semanticLabel: t.stats.totalTransferred,
-//             ),
-//             const Gap(8),
-//             _InfoProp(
-//               icon: FluentIcons.arrow_download_20_regular,
-//               text: (stats?.downlink ?? 0).speed(),
-//               semanticLabel: t.stats.speed,
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// class _InfoProp extends StatelessWidget {
-//   const _InfoProp({
-//     required this.icon,
-//     required this.text,
-//     this.semanticLabel,
-//   });
-
-//   final IconData icon;
-//   final String text;
-//   final String? semanticLabel;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Semantics(
-//       label: semanticLabel,
-//       child: Row(
-//         children: [
-//           Icon(icon),
-//           const Gap(8),
-//           Flexible(
-//             child: Text(
-//               text,
-//               style: Theme.of(context).textTheme.labelMedium?.copyWith(fontFamily: FontFamily.emoji),
-//               overflow: TextOverflow.ellipsis,
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }

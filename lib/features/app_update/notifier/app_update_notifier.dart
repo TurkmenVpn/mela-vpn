@@ -1,16 +1,19 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hiddify/core/app_info/app_info_provider.dart';
-import 'package:hiddify/core/localization/locale_preferences.dart';
-import 'package:hiddify/core/model/constants.dart';
-import 'package:hiddify/core/model/environment.dart';
-import 'package:hiddify/core/preferences/preferences_provider.dart';
-import 'package:hiddify/core/utils/preferences_utils.dart';
-import 'package:hiddify/features/app_update/data/app_update_data_providers.dart';
-import 'package:hiddify/features/app_update/model/app_update_failure.dart';
-import 'package:hiddify/features/app_update/model/remote_version_entity.dart';
-import 'package:hiddify/features/app_update/notifier/app_update_state.dart';
-import 'package:hiddify/utils/utils.dart';
+import 'package:melavpn/core/app_info/app_info_provider.dart';
+import 'package:melavpn/core/http_client/http_client_provider.dart';
+import 'package:melavpn/core/localization/locale_preferences.dart';
+import 'package:melavpn/core/model/constants.dart';
+import 'package:melavpn/core/model/environment.dart';
+import 'package:melavpn/core/preferences/preferences_provider.dart';
+import 'package:melavpn/core/utils/preferences_utils.dart';
+import 'package:melavpn/features/app_update/data/app_update_data_providers.dart';
+import 'package:melavpn/features/app_update/model/app_update_failure.dart';
+import 'package:melavpn/features/app_update/model/remote_version_entity.dart';
+import 'package:melavpn/features/app_update/notifier/app_update_state.dart';
+import 'package:melavpn/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:upgrader/upgrader.dart';
 import 'package:version/version.dart';
@@ -90,5 +93,30 @@ class AppUpdateNotifier extends _$AppUpdateNotifier with AppLogger {
     loggy.debug("ignoring release [${version.version}]");
     await _ignoreReleasePref.write(version.version);
     state = AppUpdateStateIgnored(version);
+  }
+
+  Future<String?> downloadUpdate(
+    RemoteVersionEntity version, {
+    void Function(double progress)? onProgress,
+    CancelToken? cancelToken,
+  }) async {
+    final apkUrl = version.apkUrl;
+    if (apkUrl == null) {
+      loggy.warning("no apk url in release [${version.version}]");
+      return null;
+    }
+    final dir = await getTemporaryDirectory();
+    final savePath = '${dir.path}/mela_vpn_update.apk';
+    loggy.debug("downloading update [${version.version}] to [$savePath]");
+    await ref.read(httpClientProvider).download(
+      apkUrl,
+      savePath,
+      cancelToken: cancelToken,
+      onReceiveProgress: (received, total) {
+        if (total > 0) onProgress?.call(received / total);
+      },
+    );
+    loggy.debug("download complete: [$savePath]");
+    return savePath;
   }
 }

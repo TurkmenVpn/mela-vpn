@@ -56,7 +56,7 @@ class CoreClient extends $grpc.Client {
       '/hcore.Core/Parse',
       ($0.ParseRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.ParseResponse.fromBuffer(value));
-  static final _$changeHiddifySettings =
+  static final _$changeMelaVPNSettings =
       $grpc.ClientMethod<$0.ChangeHiddifySettingsRequest, $0.CoreInfoResponse>(
           '/hcore.Core/ChangeHiddifySettings',
           ($0.ChangeHiddifySettingsRequest value) => value.writeToBuffer(),
@@ -170,10 +170,10 @@ class CoreClient extends $grpc.Client {
     return $createUnaryCall(_$parse, request, options: options);
   }
 
-  $grpc.ResponseFuture<$0.CoreInfoResponse> changeHiddifySettings(
+  $grpc.ResponseFuture<$0.CoreInfoResponse> changeMelaVPNSettings(
       $0.ChangeHiddifySettingsRequest request,
       {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$changeHiddifySettings, request, options: options);
+    return $createUnaryCall(_$changeMelaVPNSettings, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.CoreInfoResponse> startService(
@@ -302,7 +302,7 @@ abstract class CoreServiceBase extends $grpc.Service {
     $addMethod($grpc.ServiceMethod<$0.ChangeHiddifySettingsRequest,
             $0.CoreInfoResponse>(
         'ChangeHiddifySettings',
-        changeHiddifySettings_Pre,
+        changeMelaVPNSettings_Pre,
         false,
         false,
         ($core.List<$core.int> value) =>
@@ -432,10 +432,10 @@ abstract class CoreServiceBase extends $grpc.Service {
     return parse(call, await request);
   }
 
-  $async.Future<$0.CoreInfoResponse> changeHiddifySettings_Pre(
+  $async.Future<$0.CoreInfoResponse> changeMelaVPNSettings_Pre(
       $grpc.ServiceCall call,
       $async.Future<$0.ChangeHiddifySettingsRequest> request) async {
-    return changeHiddifySettings(call, await request);
+    return changeMelaVPNSettings(call, await request);
   }
 
   $async.Future<$0.CoreInfoResponse> startService_Pre(
@@ -510,7 +510,7 @@ abstract class CoreServiceBase extends $grpc.Service {
       $grpc.ServiceCall call, $0.SetupRequest request);
   $async.Future<$0.ParseResponse> parse(
       $grpc.ServiceCall call, $0.ParseRequest request);
-  $async.Future<$0.CoreInfoResponse> changeHiddifySettings(
+  $async.Future<$0.CoreInfoResponse> changeMelaVPNSettings(
       $grpc.ServiceCall call, $0.ChangeHiddifySettingsRequest request);
   $async.Future<$0.CoreInfoResponse> startService(
       $grpc.ServiceCall call, $0.StartRequest request);

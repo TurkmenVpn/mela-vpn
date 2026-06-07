@@ -1,6 +1,6 @@
 import 'package:dartx/dartx.dart';
-import 'package:hiddify/core/model/environment.dart';
-import 'package:hiddify/features/app_update/model/remote_version_entity.dart';
+import 'package:melavpn/core/model/environment.dart';
+import 'package:melavpn/features/app_update/model/remote_version_entity.dart';
 
 abstract class GithubReleaseParser {
   static RemoteVersionEntity parse(Map<String, dynamic> json) {
@@ -23,6 +23,9 @@ abstract class GithubReleaseParser {
     }
     final preRelease = json["prerelease"] as bool;
     final publishedAt = DateTime.parse(json["published_at"] as String);
+    final assets = (json['assets'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    final apkAsset = assets.firstOrNullWhere((a) => (a['name'] as String? ?? '').endsWith('.apk'));
+    final apkUrl = apkAsset?['browser_download_url'] as String?;
     return RemoteVersionEntity(
       version: version,
       buildNumber: buildNumber,
@@ -31,6 +34,7 @@ abstract class GithubReleaseParser {
       url: json["html_url"] as String,
       publishedAt: publishedAt,
       flavor: flavor,
+      apkUrl: apkUrl,
     );
   }
 }

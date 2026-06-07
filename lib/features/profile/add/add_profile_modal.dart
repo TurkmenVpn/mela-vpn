@@ -3,25 +3,22 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hiddify/core/localization/translations.dart';
-import 'package:hiddify/core/model/constants.dart';
-import 'package:hiddify/features/profile/add/widgets/free_btns.dart';
-import 'package:hiddify/features/profile/add/widgets/widgets.dart';
-import 'package:hiddify/features/profile/model/profile_entity.dart';
-import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
-import 'package:hiddify/utils/utils.dart';
+import 'package:melavpn/core/localization/translations.dart';
+import 'package:melavpn/core/model/constants.dart';
+import 'package:melavpn/features/profile/add/widgets/widgets.dart';
+import 'package:melavpn/features/profile/model/profile_entity.dart';
+import 'package:melavpn/features/profile/notifier/profile_notifier.dart';
+import 'package:melavpn/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class AddProfileModal extends HookConsumerWidget {
   const AddProfileModal({super.key, this.url});
-  // static const warpConsentGiven = "warp_consent_given";
   final String? url;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isLoading = ref.watch(addProfileNotifierProvider).isLoading;
     final currentWidget = ref.watch(addProfilePageNotifierProvider);
-    ref.listen(freeSwitchNotifierProvider, (_, _) {});
     ref.listen(addProfileNotifierProvider, (previous, next) {
       if (next case AsyncData(value: final _?)) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -52,8 +49,6 @@ class AddProfileOptions extends HookConsumerWidget {
   const AddProfileOptions({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final isLoadingProfile = ref.watch(addProfileNotifierProvider).isLoading;
-    final freeSwitch = ref.watch(freeSwitchNotifierProvider);
     final isDesktop = PlatformUtils.isDesktop;
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -61,9 +56,9 @@ class AddProfileOptions extends HookConsumerWidget {
             (constraints.maxWidth - AddProfileModalConst.fixBtnsGap * AddProfileModalConst.fixBtnsGapCount) /
             AddProfileModalConst.fixBtnsItemCount;
         final fullHeight = fixBtnsHeight + AddProfileModalConst.navBarHeight + 32;
-        final initial = !freeSwitch ? fullHeight : fullHeight + 180;
-        var min = !freeSwitch ? fullHeight : fullHeight + 100;
-        var max = !freeSwitch ? fullHeight / constraints.maxHeight : 0.85;
+        final initial = fullHeight;
+        var min = fullHeight;
+        var max = fullHeight / constraints.maxHeight;
         if (isDesktop) {
           min = initial;
           max = initial / constraints.maxHeight;
@@ -77,7 +72,7 @@ class AddProfileOptions extends HookConsumerWidget {
             children: [
               const Gap(AddProfileModalConst.fixBtnsGap),
               FixBtns(height: fixBtnsHeight),
-              if (freeSwitch) Expanded(child: FreeBtns(scrollController: scrollController)) else const Spacer(),
+              const Spacer(),
               const NavBar(),
             ],
           ),
@@ -85,6 +80,13 @@ class AddProfileOptions extends HookConsumerWidget {
       },
     );
   }
+}
+
+bool _isProxyUri(String? value) {
+  if (value == null || value.isEmpty) return false;
+  const schemes = ['vless://', 'vmess://', 'ss://', 'trojan://', 'hysteria://', 'hysteria2://', 'hy2://', 'tuic://', 'wg://', 'ssh://'];
+  final lower = value.trim().toLowerCase();
+  return schemes.any(lower.startsWith);
 }
 
 class AddProfileManual extends HookConsumerWidget {
@@ -156,9 +158,12 @@ class AddProfileManual extends HookConsumerWidget {
             child: CustomTextFormField(
               maxLines: 1,
               controller: urlTextController,
-              validator: (value) => (value != null && !isUrl(value)) ? t.pages.profileDetails.form.invalidUrl : null,
+              validator: (value) =>
+                  (value != null && !isUrl(value) && !_isProxyUri(value))
+                      ? t.pages.profileDetails.form.invalidUrl
+                      : null,
               label: t.common.url,
-              hint: t.pages.profileDetails.form.urlHint,
+              hint: 'https://... or vless:// vmess:// ss:// trojan://',
             ),
           ),
           const Gap(12),

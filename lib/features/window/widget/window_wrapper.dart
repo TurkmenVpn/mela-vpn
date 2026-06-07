@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:hiddify/core/preferences/actions_at_closing.dart';
-import 'package:hiddify/core/preferences/general_preferences.dart';
-import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
-import 'package:hiddify/core/router/go_router/go_router_notifier.dart';
-import 'package:hiddify/features/window/notifier/window_notifier.dart';
-import 'package:hiddify/utils/custom_loggers.dart';
-import 'package:hiddify/utils/platform_utils.dart';
+import 'package:melavpn/core/preferences/actions_at_closing.dart';
+import 'package:melavpn/core/preferences/general_preferences.dart';
+import 'package:melavpn/core/router/dialog/dialog_notifier.dart';
+import 'package:melavpn/core/router/go_router/go_router_notifier.dart';
+import 'package:melavpn/features/window/notifier/window_notifier.dart';
+import 'package:melavpn/utils/custom_loggers.dart';
+import 'package:melavpn/utils/platform_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:window_manager/window_manager.dart';
 

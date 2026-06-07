@@ -1,17 +1,17 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:hiddify/core/model/directories.dart';
-import 'package:hiddify/core/preferences/general_preferences.dart';
-import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
-import 'package:hiddify/core/utils/exception_handler.dart';
-import 'package:hiddify/features/connection/model/connection_failure.dart';
-import 'package:hiddify/features/connection/model/connection_status.dart';
-import 'package:hiddify/features/profile/data/profile_path_resolver.dart';
-import 'package:hiddify/features/profile/model/profile_entity.dart';
-import 'package:hiddify/features/settings/data/config_option_repository.dart';
-import 'package:hiddify/hiddifycore/hiddify_core_service.dart';
-import 'package:hiddify/singbox/model/core_status.dart';
-import 'package:hiddify/singbox/model/singbox_config_option.dart';
-import 'package:hiddify/utils/utils.dart';
+import 'package:melavpn/core/model/directories.dart';
+import 'package:melavpn/core/preferences/general_preferences.dart';
+import 'package:melavpn/core/router/dialog/dialog_notifier.dart';
+import 'package:melavpn/core/utils/exception_handler.dart';
+import 'package:melavpn/features/connection/model/connection_failure.dart';
+import 'package:melavpn/features/connection/model/connection_status.dart';
+import 'package:melavpn/features/profile/data/profile_path_resolver.dart';
+import 'package:melavpn/features/profile/model/profile_entity.dart';
+import 'package:melavpn/features/settings/data/config_option_repository.dart';
+import 'package:melavpn/hiddifycore/hiddify_core_service.dart';
+import 'package:melavpn/singbox/model/core_status.dart';
+import 'package:melavpn/singbox/model/singbox_config_option.dart';
+import 'package:melavpn/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:meta/meta.dart';
 
@@ -37,7 +37,7 @@ class ConnectionRepositoryImpl with ExceptionHandler, InfraLogger implements Con
   final Ref ref;
 
   final Directories directories;
-  final HiddifyCoreService singbox;
+  final MelaVPNCoreService singbox;
 
   final ConfigOptionRepository configOptionRepository;
   final ProfilePathResolver profilePathResolver;

@@ -6,18 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
-import 'package:hiddify/core/analytics/analytics_controller.dart';
-import 'package:hiddify/core/http_client/dio_http_client.dart';
-import 'package:hiddify/core/localization/locale_preferences.dart';
-import 'package:hiddify/core/localization/translations.dart';
-import 'package:hiddify/core/model/constants.dart';
-import 'package:hiddify/core/model/region.dart';
-import 'package:hiddify/core/preferences/general_preferences.dart';
-import 'package:hiddify/features/common/general_pref_tiles.dart';
-import 'package:hiddify/features/settings/data/config_option_repository.dart';
-import 'package:hiddify/features/settings/widget/preference_tile.dart';
-import 'package:hiddify/gen/assets.gen.dart';
-import 'package:hiddify/utils/utils.dart';
+import 'package:melavpn/core/http_client/dio_http_client.dart';
+import 'package:melavpn/core/localization/locale_preferences.dart';
+import 'package:melavpn/core/localization/translations.dart';
+import 'package:melavpn/core/model/constants.dart';
+import 'package:melavpn/core/model/region.dart';
+import 'package:melavpn/core/preferences/general_preferences.dart';
+import 'package:melavpn/features/settings/data/config_option_repository.dart';
+import 'package:melavpn/gen/assets.gen.dart';
+import 'package:melavpn/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class IntroPage extends HookConsumerWidget with PresLogger {
@@ -74,41 +71,50 @@ class IntroPage extends HookConsumerWidget with PresLogger {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  const Gap(32),
                   LayoutBuilder(
                     builder: (context, constraints) {
                       final width = constraints.maxWidth > IntroConst.maxwidth
                           ? IntroConst.maxwidth
                           : constraints.maxWidth;
-                      final size = width * 0.4;
-                      return Assets.images.logo.svg(width: size, height: size);
+                      final size = width * 0.32;
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(size * 0.22),
+                        child: Assets.icon.appIcon.image(
+                          width: size,
+                          height: size,
+                          fit: BoxFit.cover,
+                        ),
+                      );
                     },
                   ),
-                  const Gap(16),
+                  const Gap(20),
+                  ShaderMask(
+                    shaderCallback: (bounds) => const LinearGradient(
+                      colors: [Color(0xFFA89BFF), Color(0xFF22D3EE)],
+                    ).createShader(bounds),
+                    child: const Text(
+                      'Mela VPN',
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ),
+                  const Gap(8),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
                       t.intro.banner,
-                      style: theme.textTheme.bodyLarge,
-                      maxLines: 1,
+                      style: theme.textTheme.bodyMedium?.copyWith(color: const Color(0xFF94A3B8)),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const Gap(24),
-                  const LocalePrefTile(),
-                  ChoicePreferenceWidget(
-                    selected: ref.watch(ConfigOptions.region),
-                    preferences: ref.watch(ConfigOptions.region.notifier),
-                    choices: Region.values,
-                    title: t.pages.settings.routing.generalOptions.region,
-                    showFlag: true,
-                    icon: Icons.place_rounded,
-                    presentChoice: (value) => value.present(t),
-                    onChanged: (val) async {
-                      await ref.read(ConfigOptions.directDnsAddress.notifier).reset();
-                    },
-                  ),
-                  const EnableAnalyticsPrefTile(),
-                  const Gap(24),
+                  const Gap(32),
                   Focus(
                     focusNode: focusNodes[IntroConst.termsAndConditionsKey],
                     onKeyEvent: (node, event) => _handleKeyEvent(event, IntroConst.termsAndConditionsKey),
@@ -178,14 +184,6 @@ class IntroPage extends HookConsumerWidget with PresLogger {
         onPressed: () async {
           if (isStarting.value) return;
           isStarting.value = true;
-          if (!ref.read(analyticsControllerProvider).requireValue) {
-            loggy.info("disabling analytics per user request");
-            try {
-              await ref.read(analyticsControllerProvider.notifier).disableAnalytics();
-            } catch (error, stackTrace) {
-              loggy.error("could not disable analytics", error, stackTrace);
-            }
-          }
           await ref.read(Preferences.introCompleted.notifier).update(true);
         },
       ),

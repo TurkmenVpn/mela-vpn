@@ -1,6 +1,6 @@
 ///
 //  Generated code. Do not modify.
-//  source: v2/hiddifyoptions/hiddify_options.proto
+//  source: v2/melavpnoptions/melavpn_options.proto
 //
 // @dart = 2.12
 // ignore_for_file: annotate_overrides,camel_case_types,constant_identifier_names,directives_ordering,library_prefixes,non_constant_identifier_names,prefer_final_fields,return_of_invalid_type,unnecessary_const,unnecessary_import,unnecessary_this,unused_import,unused_shown_name
@@ -14,8 +14,8 @@ import 'hiddify_options.pbenum.dart';
 
 export 'hiddify_options.pbenum.dart';
 
-class HiddifyOptions extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'HiddifyOptions', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'hiddifyoptions'), createEmptyInstance: create)
+class MelaVPNOptions extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'MelaVPNOptions', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'melavpnoptions'), createEmptyInstance: create)
     ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'enableFullConfig')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'logLevel')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'logFile')
@@ -37,8 +37,8 @@ class HiddifyOptions extends $pb.GeneratedMessage {
     ..hasRequiredFields = false
   ;
 
-  HiddifyOptions._() : super();
-  factory HiddifyOptions({
+  MelaVPNOptions._() : super();
+  factory MelaVPNOptions({
     $core.bool? enableFullConfig,
     $core.String? logLevel,
     $core.String? logFile,
@@ -115,26 +115,26 @@ class HiddifyOptions extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory HiddifyOptions.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory HiddifyOptions.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory MelaVPNOptions.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory MelaVPNOptions.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  HiddifyOptions clone() => HiddifyOptions()..mergeFromMessage(this);
+  MelaVPNOptions clone() => MelaVPNOptions()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  HiddifyOptions copyWith(void Function(HiddifyOptions) updates) => super.copyWith((message) => updates(message as HiddifyOptions)) as HiddifyOptions; // ignore: deprecated_member_use
+  MelaVPNOptions copyWith(void Function(MelaVPNOptions) updates) => super.copyWith((message) => updates(message as MelaVPNOptions)) as MelaVPNOptions; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static HiddifyOptions create() => HiddifyOptions._();
-  HiddifyOptions createEmptyInstance() => create();
-  static $pb.PbList<HiddifyOptions> createRepeated() => $pb.PbList<HiddifyOptions>();
+  static MelaVPNOptions create() => MelaVPNOptions._();
+  MelaVPNOptions createEmptyInstance() => create();
+  static $pb.PbList<MelaVPNOptions> createRepeated() => $pb.PbList<MelaVPNOptions>();
   @$core.pragma('dart2js:noInline')
-  static HiddifyOptions getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<HiddifyOptions>(create);
-  static HiddifyOptions? _defaultInstance;
+  static MelaVPNOptions getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MelaVPNOptions>(create);
+  static MelaVPNOptions? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.bool get enableFullConfig => $_getBF(0);
@@ -310,7 +310,7 @@ class HiddifyOptions extends $pb.GeneratedMessage {
 }
 
 class IntRange extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'IntRange', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'hiddifyoptions'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'IntRange', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'melavpnoptions'), createEmptyInstance: create)
     ..a<$core.int>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'from', $pb.PbFieldType.O3)
     ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'to', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
@@ -371,7 +371,7 @@ class IntRange extends $pb.GeneratedMessage {
 }
 
 class DNSOptions extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DNSOptions', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'hiddifyoptions'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DNSOptions', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'melavpnoptions'), createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'remoteDnsAddress')
     ..e<DomainStrategy>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'remoteDnsDomainStrategy', $pb.PbFieldType.OE, defaultOrMaker: DomainStrategy.as_is, valueOf: DomainStrategy.valueOf, enumValues: DomainStrategy.values)
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'directDnsAddress')
@@ -502,7 +502,7 @@ class DNSOptions extends $pb.GeneratedMessage {
 }
 
 class InboundOptions extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'InboundOptions', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'hiddifyoptions'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'InboundOptions', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'melavpnoptions'), createEmptyInstance: create)
     ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'enableTun')
     ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'enableTunService')
     ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'setSystemProxy')
@@ -675,7 +675,7 @@ class InboundOptions extends $pb.GeneratedMessage {
 }
 
 class URLTestOptions extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'URLTestOptions', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'hiddifyoptions'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'URLTestOptions', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'melavpnoptions'), createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'connectionTestUrl')
     ..aInt64(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'urlTestInterval')
     ..hasRequiredFields = false
@@ -736,7 +736,7 @@ class URLTestOptions extends $pb.GeneratedMessage {
 }
 
 class RouteOptions extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RouteOptions', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'hiddifyoptions'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RouteOptions', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'melavpnoptions'), createEmptyInstance: create)
     ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'resolveDestination')
     ..e<DomainStrategy>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ipv6Mode', $pb.PbFieldType.OE, defaultOrMaker: DomainStrategy.as_is, valueOf: DomainStrategy.valueOf, enumValues: DomainStrategy.values)
     ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'bypassLan')
@@ -825,7 +825,7 @@ class RouteOptions extends $pb.GeneratedMessage {
 }
 
 class TLSTricks extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'TLSTricks', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'hiddifyoptions'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'TLSTricks', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'melavpnoptions'), createEmptyInstance: create)
     ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'enableFragment')
     ..aOM<IntRange>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fragmentSize', subBuilder: IntRange.create)
     ..aOM<IntRange>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fragmentSleep', subBuilder: IntRange.create)
@@ -948,7 +948,7 @@ class TLSTricks extends $pb.GeneratedMessage {
 }
 
 class MuxOptions extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'MuxOptions', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'hiddifyoptions'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'MuxOptions', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'melavpnoptions'), createEmptyInstance: create)
     ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'enable')
     ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'padding')
     ..a<$core.int>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'maxStreams', $pb.PbFieldType.O3)
@@ -1037,7 +1037,7 @@ class MuxOptions extends $pb.GeneratedMessage {
 }
 
 class WarpOptions extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WarpOptions', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'hiddifyoptions'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WarpOptions', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'melavpnoptions'), createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'enableWarp')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'mode')
@@ -1232,7 +1232,7 @@ class WarpOptions extends $pb.GeneratedMessage {
 }
 
 class WarpAccount extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WarpAccount', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'hiddifyoptions'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WarpAccount', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'melavpnoptions'), createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'accountId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'accessToken')
     ..hasRequiredFields = false
@@ -1293,7 +1293,7 @@ class WarpAccount extends $pb.GeneratedMessage {
 }
 
 class WarpWireguardConfig extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WarpWireguardConfig', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'hiddifyoptions'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WarpWireguardConfig', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'melavpnoptions'), createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'privateKey')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'localAddressIpv4')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'localAddressIpv6')
@@ -1396,7 +1396,7 @@ class WarpWireguardConfig extends $pb.GeneratedMessage {
 }
 
 class Rule extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Rule', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'hiddifyoptions'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Rule', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'melavpnoptions'), createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ruleSetUrl')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'domains')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ip')

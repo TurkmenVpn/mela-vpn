@@ -4,30 +4,30 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:hiddify/core/analytics/analytics_controller.dart';
-import 'package:hiddify/core/app_info/app_info_provider.dart';
-import 'package:hiddify/core/directories/directories_provider.dart';
-import 'package:hiddify/core/localization/translations.dart';
-import 'package:hiddify/core/logger/logger.dart';
-import 'package:hiddify/core/logger/logger_controller.dart';
-import 'package:hiddify/core/model/environment.dart';
-import 'package:hiddify/core/preferences/general_preferences.dart';
-import 'package:hiddify/core/preferences/preferences_migration.dart';
-import 'package:hiddify/core/preferences/preferences_provider.dart';
-import 'package:hiddify/features/app/widget/app.dart';
-import 'package:hiddify/features/auto_start/notifier/auto_start_notifier.dart';
-import 'package:hiddify/features/chain/model/chain_enum.dart';
-import 'package:hiddify/features/chain/notifier/chain_profile_notifier.dart';
+import 'package:melavpn/core/analytics/analytics_controller.dart';
+import 'package:melavpn/core/app_info/app_info_provider.dart';
+import 'package:melavpn/core/directories/directories_provider.dart';
+import 'package:melavpn/core/localization/translations.dart';
+import 'package:melavpn/core/logger/logger.dart';
+import 'package:melavpn/core/logger/logger_controller.dart';
+import 'package:melavpn/core/model/environment.dart';
+import 'package:melavpn/core/preferences/general_preferences.dart';
+import 'package:melavpn/core/preferences/preferences_migration.dart';
+import 'package:melavpn/core/preferences/preferences_provider.dart';
+import 'package:melavpn/features/app/widget/app.dart';
+import 'package:melavpn/features/auto_start/notifier/auto_start_notifier.dart';
+import 'package:melavpn/features/chain/model/chain_enum.dart';
+import 'package:melavpn/features/chain/notifier/chain_profile_notifier.dart';
 
-import 'package:hiddify/features/log/data/log_data_providers.dart';
-import 'package:hiddify/features/profile/data/profile_data_providers.dart';
-import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
-import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
-import 'package:hiddify/features/system_tray/notifier/system_tray_notifier.dart';
-import 'package:hiddify/features/window/notifier/window_notifier.dart';
-import 'package:hiddify/hiddifycore/hiddify_core_service_provider.dart';
-import 'package:hiddify/riverpod_observer.dart';
-import 'package:hiddify/utils/utils.dart';
+import 'package:melavpn/features/log/data/log_data_providers.dart';
+import 'package:melavpn/features/profile/data/profile_data_providers.dart';
+import 'package:melavpn/features/profile/notifier/active_profile_notifier.dart';
+import 'package:melavpn/features/proxy/active/active_proxy_notifier.dart';
+import 'package:melavpn/features/system_tray/notifier/system_tray_notifier.dart';
+import 'package:melavpn/features/window/notifier/window_notifier.dart';
+import 'package:melavpn/hiddifycore/hiddify_core_service_provider.dart';
+import 'package:melavpn/riverpod_observer.dart';
+import 'package:melavpn/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -97,7 +97,7 @@ Future<void> lazyBootstrap(WidgetsBinding widgetsBinding, Environment env) async
     "chain profile unblocker",
     () => container.read(chainProfileNotifierProvider(ChainType.unblocker).future),
   );
-  await _init("hiddify-core", () => container.read(hiddifyCoreServiceProvider).init());
+  await _init("melavpn-core", () => container.read(melavpnCoreServiceProvider).init());
 
   // Eagerly listen to activeProxyNotifierProvider to force synchronous evaluation in microtasks,
   // avoiding lazy build-phase flushes and sibling dependency collisions on the Home page.

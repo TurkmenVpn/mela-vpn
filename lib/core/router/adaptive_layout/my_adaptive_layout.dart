@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hiddify/core/localization/translations.dart';
-import 'package:hiddify/core/model/constants.dart';
-import 'package:hiddify/core/router/adaptive_layout/shell_route_action.dart';
-import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
-import 'package:hiddify/core/router/go_router/routing_config_notifier.dart';
-import 'package:hiddify/features/stats/widget/side_bar_stats_overview.dart';
+import 'package:melavpn/core/localization/translations.dart';
+import 'package:melavpn/core/model/constants.dart';
+import 'package:melavpn/core/router/adaptive_layout/shell_route_action.dart';
+import 'package:melavpn/core/router/go_router/helper/active_breakpoint_notifier.dart';
+import 'package:melavpn/core/router/go_router/routing_config_notifier.dart';
+import 'package:melavpn/features/stats/widget/side_bar_stats_overview.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class MyAdaptiveLayout extends HookConsumerWidget {
@@ -79,16 +79,7 @@ class MyAdaptiveLayout extends HookConsumerWidget {
                   Expanded(child: navigationShell),
                 ],
               ),
-        bottomNavigationBar: isMobileBreakpoint
-            ? FocusScope(
-                node: navScopeNode,
-                child: NavigationBar(
-                  selectedIndex: navigationShell.currentIndex <= 1 ? navigationShell.currentIndex : 0,
-                  destinations: _navDests(_actions(t, showProfilesAction, isMobileBreakpoint)),
-                  onDestinationSelected: (index) => _onTap(context, index),
-                ),
-              )
-            : null,
+        bottomNavigationBar: null,
       ),
     );
   }
@@ -99,11 +90,11 @@ class MyAdaptiveLayout extends HookConsumerWidget {
   }
 
   List<ShellRouteAction> _actions(Translations t, bool showProfilesAction, bool isMobileBreakpoint) => [
-    ShellRouteAction(Icons.power_settings_new_rounded, t.pages.home.title),
-    if (showProfilesAction && !isMobileBreakpoint) ShellRouteAction(Icons.view_list_rounded, t.pages.profiles.title),
-    ShellRouteAction(Icons.settings_rounded, t.pages.settings.title),
-    if (!isMobileBreakpoint) ShellRouteAction(Icons.description_rounded, t.pages.logs.title),
-    if (!isMobileBreakpoint) ShellRouteAction(Icons.info_rounded, t.pages.about.title),
+    ShellRouteAction(Icons.shield_rounded, t.pages.home.title),
+    if (showProfilesAction && !isMobileBreakpoint) ShellRouteAction(Icons.list_alt_rounded, t.pages.profiles.title),
+    ShellRouteAction(Icons.tune_rounded, t.pages.settings.title),
+    if (!isMobileBreakpoint) ShellRouteAction(Icons.terminal_rounded, t.pages.logs.title),
+    if (!isMobileBreakpoint) ShellRouteAction(Icons.info_outline_rounded, t.pages.about.title),
   ];
 
   List<NavigationDestination> _navDests(List<ShellRouteAction> actions) =>

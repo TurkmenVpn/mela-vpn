@@ -4,23 +4,23 @@ import 'dart:io';
 import 'package:basic_utils/basic_utils.dart';
 import 'package:flutter/services.dart';
 import 'package:grpc/grpc.dart';
-import 'package:hiddify/core/model/directories.dart';
-import 'package:hiddify/core/utils/laststeam.dart';
-import 'package:hiddify/hiddifycore/core_interface/core_interface.dart';
-import 'package:hiddify/hiddifycore/core_interface/mtls_channel_cred.dart';
-import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore_service.pbgrpc.dart';
-import 'package:hiddify/hiddifycore/generated/v2/hello/hello.pb.dart';
-import 'package:hiddify/hiddifycore/generated/v2/hello/hello_service.pbgrpc.dart';
-import 'package:hiddify/singbox/model/core_status.dart';
+import 'package:melavpn/core/model/directories.dart';
+import 'package:melavpn/core/utils/laststeam.dart';
+import 'package:melavpn/hiddifycore/core_interface/core_interface.dart';
+import 'package:melavpn/hiddifycore/core_interface/mtls_channel_cred.dart';
+import 'package:melavpn/hiddifycore/generated/v2/hcore/hcore_service.pbgrpc.dart';
+import 'package:melavpn/hiddifycore/generated/v2/hello/hello.pb.dart';
+import 'package:melavpn/hiddifycore/generated/v2/hello/hello_service.pbgrpc.dart';
+import 'package:melavpn/singbox/model/core_status.dart';
 
-import 'package:hiddify/utils/utils.dart';
+import 'package:melavpn/utils/utils.dart';
 import 'package:loggy/loggy.dart';
 import 'package:rxdart/rxdart.dart';
 
-final _logger = Loggy('FFIHiddifyCoreService');
+final _logger = Loggy('FFIMelaVPNCoreService');
 
 class CoreInterfaceMobile extends CoreInterface with InfraLogger {
-  static const channelPrefix = "com.hiddify.app";
+  static const channelPrefix = "com.melavpn.app";
   static const methodChannel = MethodChannel("$channelPrefix/method");
   static const statusChannel = EventChannel("$channelPrefix/service.status", JSONMethodCodec());
   static const alertsChannel = EventChannel("$channelPrefix/service.alerts", JSONMethodCodec());
@@ -96,7 +96,7 @@ class CoreInterfaceMobile extends CoreInterface with InfraLogger {
         options: ChannelOptions(credentials: channelOption),
       ),
     );
-    // await start("/sdcard/Android/data/app.hiddify.com/files/configs/cdc633e9-8cfc-4a67-948d-009f779a5c91.json", "hiddify");
+    // await start("/sdcard/Android/data/app.melavpn.com/files/configs/cdc633e9-8cfc-4a67-948d-009f779a5c91.json", "melavpn");
     return "";
   }
 
@@ -115,13 +115,15 @@ class CoreInterfaceMobile extends CoreInterface with InfraLogger {
 
     _isBgClientAvailable = true;
     loggy.info("Waiting for starting core");
+    bool coreStarted = false;
     for (var i = 0; i < 20; i++) {
       try {
         final res = await _status.get(timeout: const Duration(seconds: 1));
 
         switch (res) {
           case CoreStarted():
-            break;
+            loggy.info("Core started, proceeding to port check");
+            coreStarted = true;
           case CoreStopped():
             if (res.alert != null) {
               return res;
@@ -131,6 +133,7 @@ class CoreInterfaceMobile extends CoreInterface with InfraLogger {
           // return res;
           case CoreStarting():
         }
+        if (coreStarted) break;
         await Future.delayed(const Duration(milliseconds: 200));
       } on TimeoutException {
         // just retry
@@ -138,10 +141,12 @@ class CoreInterfaceMobile extends CoreInterface with InfraLogger {
     }
     loggy.info("Waiting for starting core finished");
 
-    if (!await waitUntilPort(portBack, true, null, maxTry: 10)) {
+    if (!await waitUntilPort(portBack, true, null, maxTry: 30)) {
       await stopMethodChannel();
-      return const CoreStatus.stopped(alert: CoreAlert.startService, message: "starting background core...");
+      return const CoreStatus.stopped(alert: CoreAlert.startService, message: "VPN server did not respond. Check your key or try another server.");
     }
+    // Give the gRPC server a moment to fully initialize after port opens
+    await Future.delayed(const Duration(milliseconds: 500));
     return const CoreStarted();
   }
 

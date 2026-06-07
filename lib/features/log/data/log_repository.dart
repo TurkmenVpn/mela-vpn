@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:hiddify/core/utils/exception_handler.dart';
-import 'package:hiddify/features/log/data/log_parser.dart';
-import 'package:hiddify/features/log/data/log_path_resolver.dart';
-import 'package:hiddify/features/log/model/log_entity.dart';
-import 'package:hiddify/features/log/model/log_failure.dart';
-import 'package:hiddify/hiddifycore/hiddify_core_service.dart';
-import 'package:hiddify/utils/custom_loggers.dart';
+import 'package:melavpn/core/utils/exception_handler.dart';
+import 'package:melavpn/features/log/data/log_parser.dart';
+import 'package:melavpn/features/log/data/log_path_resolver.dart';
+import 'package:melavpn/features/log/model/log_entity.dart';
+import 'package:melavpn/features/log/model/log_failure.dart';
+import 'package:melavpn/hiddifycore/hiddify_core_service.dart';
+import 'package:melavpn/utils/custom_loggers.dart';
 
 abstract interface class LogRepository {
   TaskEither<LogFailure, Unit> init();
@@ -17,7 +17,7 @@ abstract interface class LogRepository {
 class LogRepositoryImpl with ExceptionHandler, InfraLogger implements LogRepository {
   LogRepositoryImpl({required this.singbox, required this.logPathResolver});
 
-  final HiddifyCoreService singbox;
+  final MelaVPNCoreService singbox;
   final LogPathResolver logPathResolver;
 
   @override

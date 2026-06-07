@@ -4,14 +4,15 @@ import 'dart:io';
 import 'package:dartx/dartx.dart';
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:hiddify/core/db/db.dart';
-import 'package:hiddify/core/http_client/dio_http_client.dart';
-import 'package:hiddify/features/profile/data/profile_data_mapper.dart';
-import 'package:hiddify/features/profile/model/profile_entity.dart';
-import 'package:hiddify/features/profile/model/profile_failure.dart';
-import 'package:hiddify/features/settings/data/config_option_repository.dart';
-import 'package:hiddify/singbox/model/singbox_proxy_type.dart';
-import 'package:hiddify/utils/utils.dart';
+import 'package:melavpn/core/db/db.dart';
+import 'package:melavpn/core/device_id/device_id_provider.dart';
+import 'package:melavpn/core/http_client/dio_http_client.dart';
+import 'package:melavpn/features/profile/data/profile_data_mapper.dart';
+import 'package:melavpn/features/profile/model/profile_entity.dart';
+import 'package:melavpn/features/profile/model/profile_failure.dart';
+import 'package:melavpn/features/settings/data/config_option_repository.dart';
+import 'package:melavpn/singbox/model/singbox_proxy_type.dart';
+import 'package:melavpn/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:meta/meta.dart';
 
@@ -45,6 +46,7 @@ class ProfileParser {
     'profile-update-interval',
     'support-url',
     'profile-web-page-url',
+    'profile-announce',
     'enable-warp',
     'enable-fragment',
   ];
@@ -149,14 +151,18 @@ class ProfileParser {
     // if (url.startsWith("http://"))
     //   throw const ProfileFailure.invalidUrl('HTTP is not supported. Please use HTTPS for secure connection.');
 
+    final sendHwid = _ref.read(sendHwidWithSubscription);
+    final hwid = sendHwid ? _ref.read(deviceIdProvider) : null;
+
     final rs = await _httpClient
         .download(
           url.trim(),
           tempFilePath,
           cancelToken: cancelToken,
           userAgent: _ref.read(ConfigOptions.useXrayCoreWhenPossible)
-              ? _httpClient.userAgent.replaceAll("HiddifyNext", "HiddifyNextX")
+              ? _httpClient.userAgent.replaceAll("MelaVPNNext", "MelaVPNNextX")
               : null,
+          extraHeaders: hwid != null ? {'X-HWID': hwid} : null,
         )
         .catchError((err) {
           if (CancelToken.isCancel(err as DioException)) {
@@ -213,7 +219,7 @@ class ProfileParser {
             tmpPath,
             cancelToken: cancelToken,
             userAgent: ref.read(ConfigOptions.useXrayCoreWhenPossible)
-                ? httpClient.userAgent.replaceAll('HiddifyNext', 'HiddifyNextX')
+                ? httpClient.userAgent.replaceAll('MelaVPNNext', 'MelaVPNNextX')
                 : null,
           );
 

@@ -3,22 +3,22 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:hiddify/core/haptic/haptic_service.dart';
-import 'package:hiddify/core/http_client/http_client_provider.dart';
-import 'package:hiddify/core/localization/translations.dart';
-import 'package:hiddify/core/model/failures.dart';
-import 'package:hiddify/core/notification/in_app_notification_controller.dart';
-import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
-import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
-import 'package:hiddify/features/profile/add/model/free_profiles_model.dart';
-import 'package:hiddify/features/profile/data/profile_data_providers.dart';
-import 'package:hiddify/features/profile/data/profile_repository.dart';
-import 'package:hiddify/features/profile/model/profile_entity.dart';
-import 'package:hiddify/features/profile/model/profile_failure.dart';
-import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
-import 'package:hiddify/features/settings/data/config_option_repository.dart';
-import 'package:hiddify/utils/riverpod_utils.dart';
-import 'package:hiddify/utils/utils.dart';
+import 'package:melavpn/core/haptic/haptic_service.dart';
+import 'package:melavpn/core/http_client/http_client_provider.dart';
+import 'package:melavpn/core/localization/translations.dart';
+import 'package:melavpn/core/model/failures.dart';
+import 'package:melavpn/core/notification/in_app_notification_controller.dart';
+import 'package:melavpn/core/router/dialog/dialog_notifier.dart';
+import 'package:melavpn/features/connection/notifier/connection_notifier.dart';
+import 'package:melavpn/features/profile/add/model/free_profiles_model.dart';
+import 'package:melavpn/features/profile/data/profile_data_providers.dart';
+import 'package:melavpn/features/profile/data/profile_repository.dart';
+import 'package:melavpn/features/profile/model/profile_entity.dart';
+import 'package:melavpn/features/profile/model/profile_failure.dart';
+import 'package:melavpn/features/profile/notifier/active_profile_notifier.dart';
+import 'package:melavpn/features/settings/data/config_option_repository.dart';
+import 'package:melavpn/utils/riverpod_utils.dart';
+import 'package:melavpn/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -67,7 +67,7 @@ class AddProfileNotifier extends _$AddProfileNotifier with AppLogger {
       // final activeProfile = await ref.read(activeProfileProvider.future);
       // final markAsActive = activeProfile == null || ref.read(Preferences.markNewProfileActive);
       final TaskEither<ProfileFailure, Unit> task;
-      if (LinkParser.parse(rawInput) case (final rs)?) {
+      if (await LinkParser.parse(rawInput) case (final rs)?) {
         loggy.debug("adding profile, url: [${rs.url}]");
         task = _profilesRepo.upsertRemote(
           rs.url,
@@ -97,7 +97,13 @@ class AddProfileNotifier extends _$AddProfileNotifier with AppLogger {
     if (state.isLoading) return;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final task = _profilesRepo.upsertRemote(url, userOverride: userOverride);
+      final TaskEither<ProfileFailure, Unit> task;
+      if (_isProxyUri(url)) {
+        loggy.debug("adding single proxy URI as local profile");
+        task = _profilesRepo.addLocal(url, userOverride: userOverride);
+      } else {
+        task = _profilesRepo.upsertRemote(url, userOverride: userOverride);
+      }
       return await task
           .match(
             (err) {
@@ -105,12 +111,18 @@ class AddProfileNotifier extends _$AddProfileNotifier with AppLogger {
               throw err;
             },
             (r) {
-              loggy.info("successfully added profile, mark as active? [true]");
+              loggy.info("successfully added profile");
               return r;
             },
           )
           .run();
     });
+  }
+
+  static bool _isProxyUri(String url) {
+    const schemes = ['vless://', 'vmess://', 'ss://', 'trojan://', 'hysteria://', 'hysteria2://', 'hy2://', 'tuic://', 'wg://', 'ssh://'];
+    final lower = url.trim().toLowerCase();
+    return schemes.any(lower.startsWith);
   }
 }
 
@@ -191,7 +203,7 @@ class FreeProfilesNotifier extends _$FreeProfilesNotifier {
   Future<List<FreeProfile>> build() async {
     final httpClient = ref.watch(httpClientProvider);
     final res = await httpClient.get(
-      'https://raw.githubusercontent.com/hiddify/hiddify-app/refs/heads/main/test.configs/free_configs',
+      'https://raw.githubusercontent.com/melavpn/melavpn-app/refs/heads/main/test.configs/free_configs',
     );
     if (res.statusCode == 200) {
       return FreeProfilesModel.fromJson(jsonDecode(res.data.toString()) as Map<String, dynamic>).profiles;

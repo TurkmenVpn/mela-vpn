@@ -1,18 +1,18 @@
 import 'package:dartx/dartx.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:hiddify/core/model/optional_range.dart';
-import 'package:hiddify/core/model/region.dart';
-import 'package:hiddify/core/utils/exception_handler.dart';
-import 'package:hiddify/core/utils/json_converters.dart';
-import 'package:hiddify/core/utils/preferences_utils.dart';
-import 'package:hiddify/features/log/model/log_level.dart';
-import 'package:hiddify/features/profile/data/profile_parser.dart';
-import 'package:hiddify/features/route_rules/notifier/rules_notifier.dart';
-import 'package:hiddify/features/settings/model/config_option_failure.dart';
-import 'package:hiddify/hiddifycore/generated/v2/config/route_rule.pb.dart';
-import 'package:hiddify/singbox/model/singbox_config_enum.dart';
-import 'package:hiddify/singbox/model/singbox_config_option.dart';
-import 'package:hiddify/utils/utils.dart';
+import 'package:melavpn/core/model/optional_range.dart';
+import 'package:melavpn/core/model/region.dart';
+import 'package:melavpn/core/utils/exception_handler.dart';
+import 'package:melavpn/core/utils/json_converters.dart';
+import 'package:melavpn/core/utils/preferences_utils.dart';
+import 'package:melavpn/features/log/model/log_level.dart';
+import 'package:melavpn/features/profile/data/profile_parser.dart';
+import 'package:melavpn/features/route_rules/notifier/rules_notifier.dart';
+import 'package:melavpn/features/settings/model/config_option_failure.dart';
+import 'package:melavpn/hiddifycore/generated/v2/config/route_rule.pb.dart';
+import 'package:melavpn/singbox/model/singbox_config_enum.dart';
+import 'package:melavpn/singbox/model/singbox_config_option.dart';
+import 'package:melavpn/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -141,15 +141,12 @@ abstract class ConfigOptions {
     "connection-test-url",
     "http://captive.apple.com/hotspot-detect.html",
     possibleValues: List.of([
+      "http://captive.apple.com/hotspot-detect.html",
       "http://connectivitycheck.gstatic.com/generate_204",
       "http://www.gstatic.com/generate_204",
-      "https://www.gstatic.com/generate_204",
-      "https://redirector.googlevideo.com/generate_204",
       "http://cp.cloudflare.com",
       "http://kernel.org",
       "http://detectportal.firefox.com",
-      "http://captive.apple.com/hotspot-detect.html",
-      "https://1.1.1.1",
       "http://1.1.1.1",
     ]),
     validator: (value) => value.isNotBlank && isUrl(value),

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:hiddify/core/localization/translations.dart';
-import 'package:hiddify/core/model/optional_range.dart';
-import 'package:hiddify/features/chain/model/chain_enum.dart';
-import 'package:hiddify/features/chain/notifier/chain_profile_notifier.dart';
-import 'package:hiddify/features/chain/overview/chain_timeline.dart';
-import 'package:hiddify/features/profile/model/profile_entity.dart';
-import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
-import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
-import 'package:hiddify/features/settings/data/config_option_repository.dart';
-import 'package:hiddify/features/settings/widget/preference_tile.dart';
-import 'package:hiddify/singbox/model/singbox_config_enum.dart';
-import 'package:hiddify/utils/utils.dart';
+import 'package:melavpn/core/localization/translations.dart';
+import 'package:melavpn/core/model/optional_range.dart';
+import 'package:melavpn/features/chain/model/chain_enum.dart';
+import 'package:melavpn/features/chain/notifier/chain_profile_notifier.dart';
+import 'package:melavpn/features/chain/overview/chain_timeline.dart';
+import 'package:melavpn/features/profile/model/profile_entity.dart';
+import 'package:melavpn/features/profile/notifier/active_profile_notifier.dart';
+import 'package:melavpn/features/profile/overview/profiles_notifier.dart';
+import 'package:melavpn/features/settings/data/config_option_repository.dart';
+import 'package:melavpn/features/settings/widget/preference_tile.dart';
+import 'package:melavpn/singbox/model/singbox_config_enum.dart';
+import 'package:melavpn/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ChainOptionsPage extends HookConsumerWidget {

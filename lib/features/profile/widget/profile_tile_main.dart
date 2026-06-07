@@ -2,11 +2,11 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
-import 'package:hiddify/core/localization/translations.dart';
-import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
-import 'package:hiddify/features/profile/model/profile_entity.dart';
-import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
-import 'package:hiddify/utils/utils.dart';
+import 'package:melavpn/core/localization/translations.dart';
+import 'package:melavpn/core/router/dialog/dialog_notifier.dart';
+import 'package:melavpn/features/profile/model/profile_entity.dart';
+import 'package:melavpn/features/profile/notifier/profile_notifier.dart';
+import 'package:melavpn/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -16,7 +16,7 @@ class ProfileTileMain extends HookConsumerWidget {
   final ProfileEntity profile;
   final bool isMain;
   static const verifiedDomains = [
-    'hiddify.com',
+    'melavpn.com',
     // 't.me',
     // 'telegram.me',
     // 'instagram.com',
@@ -24,11 +24,11 @@ class ProfileTileMain extends HookConsumerWidget {
     // 'facebook.com',
   ];
   static const verifiedLinks = [
-    'https://t.me/hiddify',
-    'https://t.me/hiddify_board',
-    'https://instagram.com/hiddify_com',
-    'https://x.com/hiddify_com',
-    'https://facebook.com/hiddify',
+    'https://t.me/melavpn',
+    'https://t.me/melavpn_board',
+    'https://instagram.com/melavpn_com',
+    'https://x.com/melavpn_com',
+    'https://facebook.com/melavpn',
   ];
   Future<void> _launchUrlWithCheck(BuildContext context, WidgetRef ref, String url) async {
     final uri = Uri.parse(url);
@@ -149,7 +149,7 @@ class ProfileTileMain extends HookConsumerWidget {
                                 onTap: () => _launchUrlWithCheck(context, ref, subInfo.supportUrl!),
                                 borderRadius: BorderRadius.circular(8),
                                 child: _InfoItem(
-                                  icon: _getLinkIcon(subInfo.supportUrl!, FontAwesomeIcons.headset),
+                                  icon: _getLinkIcon(subInfo.supportUrl!, null),
                                   label: t.components.subscriptionInfo.profileSupport,
                                   value: _formatSupportLink(subInfo.supportUrl!),
                                 ),
@@ -167,26 +167,23 @@ class ProfileTileMain extends HookConsumerWidget {
     );
   }
 
-  IconData _getLinkIcon(String url, [IconData? icon]) {
+  Widget _getLinkIcon(String url, [IconData? icon]) {
     final uri = Uri.parse(url);
     final host = uri.host.toLowerCase();
 
     if (host.endsWith('telegram.me') || host.endsWith('t.me')) {
-      return FontAwesomeIcons.telegram;
+      return const FaIcon(FontAwesomeIcons.telegram, size: 20);
     }
     if (host.endsWith('instagram.com')) {
-      return FontAwesomeIcons.instagram;
+      return const FaIcon(FontAwesomeIcons.instagram, size: 20);
     }
     if (host.endsWith('twitter.com')) {
-      return FontAwesomeIcons.xTwitter;
+      return const FaIcon(FontAwesomeIcons.xTwitter, size: 20);
     }
     if (host.endsWith('facebook.com')) {
-      return FontAwesomeIcons.facebook;
+      return const FaIcon(FontAwesomeIcons.facebook, size: 20);
     }
-    if (host.endsWith('hiddify.com')) {
-      // return IconData();
-    }
-    return icon ?? FluentIcons.link_24_regular;
+    return Icon(icon ?? FluentIcons.link_24_regular, size: 20);
   }
 
   String _formatSupportLink(String url) {
@@ -205,8 +202,8 @@ class ProfileTileMain extends HookConsumerWidget {
     if (host.endsWith('facebook.com')) {
       return uri.pathSegments.lastWhere((e) => e.isNotEmpty, orElse: () => '');
     }
-    if (host.endsWith('hiddify.com')) {
-      return "Hiddify";
+    if (host.endsWith('melavpn.com')) {
+      return "MelaVPN";
     }
     return uri.host;
   }
@@ -273,7 +270,7 @@ class _UsageRow extends StatelessWidget {
 class _InfoItem extends StatelessWidget {
   const _InfoItem({required this.icon, required this.label, required this.value});
 
-  final IconData icon;
+  final Widget icon;
   final String label;
   final String value;
 
@@ -289,7 +286,7 @@ class _InfoItem extends StatelessWidget {
       // ),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: theme.colorScheme.onSurfaceVariant),
+          IconTheme(data: IconThemeData(size: 20, color: theme.colorScheme.onSurfaceVariant), child: icon),
           const Gap(12),
           Expanded(
             child: Column(

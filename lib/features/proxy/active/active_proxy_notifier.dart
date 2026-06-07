@@ -1,18 +1,18 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:hiddify/core/haptic/haptic_service.dart';
-import 'package:hiddify/core/preferences/general_preferences.dart';
-import 'package:hiddify/core/utils/throttler.dart';
-import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
-import 'package:hiddify/features/proxy/data/proxy_data_providers.dart';
-import 'package:hiddify/features/proxy/data/proxy_repository.dart';
-import 'package:hiddify/features/proxy/model/ip_info_entity.dart' as oldipinfo;
-import 'package:hiddify/features/proxy/model/proxy_failure.dart';
-import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
+import 'package:melavpn/core/haptic/haptic_service.dart';
+import 'package:melavpn/core/preferences/general_preferences.dart';
+import 'package:melavpn/core/utils/throttler.dart';
+import 'package:melavpn/features/connection/notifier/connection_notifier.dart';
+import 'package:melavpn/features/proxy/data/proxy_data_providers.dart';
+import 'package:melavpn/features/proxy/data/proxy_repository.dart';
+import 'package:melavpn/features/proxy/model/ip_info_entity.dart' as oldipinfo;
+import 'package:melavpn/features/proxy/model/proxy_failure.dart';
+import 'package:melavpn/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 
-import 'package:hiddify/utils/riverpod_utils.dart';
-import 'package:hiddify/utils/utils.dart';
+import 'package:melavpn/utils/riverpod_utils.dart';
+import 'package:melavpn/utils/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'active_proxy_notifier.g.dart';
@@ -46,7 +46,7 @@ class IpInfoNotifier extends _$IpInfoNotifier with AppLogger {
     _forceCheck = false;
     final info = await ref.watch(proxyRepositoryProvider).getCurrentIpInfo(cancelToken).getOrElse((err) {
       loggy.warning("error getting proxy ip info", err, StackTrace.current);
-      // throw err; //hiddify: remove exception to be logged
+      // throw err; //melavpn: remove exception to be logged
       throw const UnknownIp();
     }).run();
 

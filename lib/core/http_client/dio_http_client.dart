@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
 
-import 'package:hiddify/utils/custom_loggers.dart';
+import 'package:melavpn/utils/custom_loggers.dart';
 
 class DioHttpClient with InfraLogger {
   final Map<String, Dio> _dio = {};
@@ -89,6 +89,7 @@ class DioHttpClient with InfraLogger {
     String? userAgent,
     ({String username, String password})? credentials,
     bool proxyOnly = false,
+    Map<String, String>? extraHeaders,
   }) async {
     final mode = proxyOnly
         ? "proxy"
@@ -100,7 +101,7 @@ class DioHttpClient with InfraLogger {
     return dio.get<T>(
       url,
       cancelToken: cancelToken,
-      options: _options(url, userAgent: userAgent, credentials: credentials),
+      options: _options(url, userAgent: userAgent, credentials: credentials, extraHeaders: extraHeaders),
     );
   }
 
@@ -111,6 +112,9 @@ class DioHttpClient with InfraLogger {
     String? userAgent,
     ({String username, String password})? credentials,
     bool proxyOnly = false,
+    Map<String, String>? extraHeaders,
+    ProgressCallback? onReceiveProgress,
+    Duration? receiveTimeout = const Duration(minutes: 10),
   }) async {
     final mode = proxyOnly
         ? "proxy"
@@ -118,15 +122,17 @@ class DioHttpClient with InfraLogger {
         ? "both"
         : "direct";
     final dio = _dio[mode]!;
+    final opts = _options(url, userAgent: userAgent, credentials: credentials, extraHeaders: extraHeaders);
     return dio.download(
       url,
       path,
       cancelToken: cancelToken,
-      options: _options(url, userAgent: userAgent, credentials: credentials),
+      onReceiveProgress: onReceiveProgress,
+      options: opts.copyWith(receiveTimeout: receiveTimeout),
     );
   }
 
-  Options _options(String url, {String? userAgent, ({String username, String password})? credentials}) {
+  Options _options(String url, {String? userAgent, ({String username, String password})? credentials, Map<String, String>? extraHeaders}) {
     final uri = Uri.parse(url);
 
     String? userInfo;
@@ -145,8 +151,7 @@ class DioHttpClient with InfraLogger {
       headers: {
         if (userAgent != null) "User-Agent": userAgent,
         if (basicAuth != null) "authorization": basicAuth,
-        // "Accept": "application/json",
-        // "Content-Type": "application/json",
+        if (extraHeaders != null) ...extraHeaders,
       },
     );
   }
