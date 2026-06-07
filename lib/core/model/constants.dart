@@ -4,11 +4,11 @@ import 'package:melavpn/utils/utils.dart';
 
 abstract class Constants {
   static const appName = "MelaVPN";
-  static const githubUrl = "https://github.com/melavpn/mela-vpn";
-  static const licenseUrl = "https://github.com/melavpn/mela-vpn?tab=License-1-ov-file#readme";
-  static const githubReleasesApiUrl = "https://api.github.com/repos/melavpn/mela-vpn/releases";
-  static const githubLatestReleaseUrl = "https://github.com/melavpn/melavpn-app/releases/latest";
-  static const appCastUrl = "https://raw.githubusercontent.com/melavpn/mela-vpn/main/appcast.xml";
+  static const githubUrl = "https://github.com/TurkmenVpn/mela-vpn";
+  static const licenseUrl = "https://github.com/TurkmenVpn/mela-vpn?tab=License-1-ov-file#readme";
+  static const githubReleasesApiUrl = "https://api.github.com/repos/TurkmenVpn/mela-vpn/releases";
+  static const githubLatestReleaseUrl = "https://github.com/TurkmenVpn/mela-vpn/releases/latest";
+  static const appCastUrl = "https://raw.githubusercontent.com/TurkmenVpn/mela-vpn/main/appcast.xml";
   static const telegramChannelUrl = "https://t.me/melavpn";
   static const privacyPolicyUrl = "https://melavpn.com/privacy-policy/";
   static const termsAndConditionsUrl = "https://melavpn.com/terms/";

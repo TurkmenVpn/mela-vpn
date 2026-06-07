@@ -20,24 +20,17 @@ class HomeTrafficStats extends HookConsumerWidget {
     final stats = ref.watch(statsNotifierProvider).asData?.value ?? SystemInfo.create();
     final isConnected = connectionStatus == const Connected();
 
-    final connectedAt = useRef<DateTime?>(null);
     final elapsed = useState(Duration.zero);
 
     useEffect(() {
-      if (isConnected) {
-        connectedAt.value ??= DateTime.now();
-      } else {
-        connectedAt.value = null;
+      if (!isConnected) {
         elapsed.value = Duration.zero;
+        return null;
       }
-      return null;
-    }, [isConnected]);
-
-    useEffect(() {
-      if (!isConnected) return null;
+      DateTime startTime() => ref.read(connectionNotifierProvider.notifier).connectedAt ?? DateTime.now();
+      elapsed.value = DateTime.now().difference(startTime());
       final timer = Stream.periodic(const Duration(seconds: 1)).listen((_) {
-        final start = connectedAt.value;
-        if (start != null) elapsed.value = DateTime.now().difference(start);
+        elapsed.value = DateTime.now().difference(startTime());
       });
       return timer.cancel;
     }, [isConnected]);

@@ -74,6 +74,9 @@ class AddProfileNotifier extends _$AddProfileNotifier with AppLogger {
           userOverride: rs.name.isNotEmpty ? UserOverride(name: rs.name) : null,
           cancelToken: _cancelToken = CancelToken(),
         );
+      } else if (_isProxyUri(rawInput.trim())) {
+        loggy.debug("adding profile, single proxy URI");
+        task = _profilesRepo.addLocal(rawInput.trim());
       } else {
         loggy.debug("adding profile, content");
         task = _profilesRepo.addLocal(safeDecodeBase64(rawInput));

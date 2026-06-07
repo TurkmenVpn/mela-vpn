@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:melavpn/core/app_info/app_info_provider.dart';
@@ -63,10 +64,33 @@ class SettingsPage extends HookConsumerWidget {
       backgroundColor: MelaColors.bg(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: Text(
-          'Settings',
-          style: TextStyle(color: MelaColors.textPrim(context), fontWeight: FontWeight.w700),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(7),
+            decoration: BoxDecoration(
+              color: MelaColors.card(context),
+              shape: BoxShape.circle,
+              border: Border.all(color: MelaColors.brd(context), width: 1),
+            ),
+            child: Icon(Icons.arrow_back_ios_new_rounded, color: MelaColors.textSec(context), size: 15),
+          ),
+          onPressed: () => context.goNamed('home'),
         ),
+        title: ShaderMask(
+          shaderCallback: (bounds) => MelaColors.primaryGradient.createShader(bounds),
+          child: const Text(
+            'Настройки',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ),
+        centerTitle: true,
         iconTheme: IconThemeData(color: MelaColors.textSec(context)),
         actions: [
           MenuAnchor(
@@ -152,7 +176,7 @@ class SettingsPage extends HookConsumerWidget {
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: MelaColors.brd(ctx), width: 1),
                   ),
-                  child: const Icon(Icons.more_vert_rounded, color: MelaColors.textSecondary, size: 18),
+                  child: Icon(Icons.more_vert_rounded, color: MelaColors.textSec(ctx), size: 18),
                 ),
               ),
             ),
@@ -172,7 +196,7 @@ class SettingsPage extends HookConsumerWidget {
                 namedLocation: context.namedLocation('general'),
               ),
             ],
-          ),
+          ).animate().fadeIn(delay: 0.ms, duration: 300.ms).slideY(begin: 0.06, end: 0),
           const Gap(12),
           _SettingsGroup(
             children: [
@@ -181,7 +205,7 @@ class SettingsPage extends HookConsumerWidget {
                   title: t.pages.settings.chain.title,
                   icon: Icons.account_tree_rounded,
                   iconColor: MelaColors.secondary,
-                  subtitle: Text(t.pages.settings.chain.subtitle, style: const TextStyle(color: MelaColors.textMuted, fontSize: 12)),
+                  subtitle: Text(t.pages.settings.chain.subtitle, style: TextStyle(color: MelaColors.textHint(context), fontSize: 12)),
                   namedLocation: context.namedLocation('chainOptions'),
                 ),
               SettingsSection(
@@ -197,7 +221,7 @@ class SettingsPage extends HookConsumerWidget {
                 namedLocation: context.namedLocation('inboundOptions'),
               ),
             ],
-          ),
+          ).animate().fadeIn(delay: 60.ms, duration: 300.ms).slideY(begin: 0.06, end: 0),
           const Gap(12),
           _SettingsGroup(
             children: [
@@ -210,7 +234,7 @@ class SettingsPage extends HookConsumerWidget {
               if (PlatformUtils.isIOS)
                 _ResetTunnelTile(t: t, ref: ref),
             ],
-          ),
+          ).animate().fadeIn(delay: 120.ms, duration: 300.ms).slideY(begin: 0.06, end: 0),
           if (Breakpoint(context).isMobile()) ...[
             const Gap(12),
             _SettingsGroup(
@@ -228,7 +252,7 @@ class SettingsPage extends HookConsumerWidget {
                   namedLocation: context.namedLocation('about'),
                 ),
               ],
-            ),
+            ).animate().fadeIn(delay: 180.ms, duration: 300.ms).slideY(begin: 0.06, end: 0),
           ],
           if (appInfo.release.allowCustomUpdateChecker) ...[
             const Gap(12),
@@ -247,7 +271,7 @@ class SettingsPage extends HookConsumerWidget {
                   ),
                   title: Text(
                     t.pages.about.checkForUpdate,
-                    style: const TextStyle(color: MelaColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 15),
+                    style: TextStyle(color: MelaColors.textPrim(context), fontWeight: FontWeight.w600, fontSize: 15),
                   ),
                   trailing: appUpdate is AppUpdateStateChecking
                       ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
@@ -255,7 +279,7 @@ class SettingsPage extends HookConsumerWidget {
                   onTap: () async => await ref.read(appUpdateNotifierProvider.notifier).check(),
                 ),
               ],
-            ),
+            ).animate().fadeIn(delay: 240.ms, duration: 300.ms).slideY(begin: 0.06, end: 0),
           ],
           const Gap(12),
           _HwidSection(),
@@ -288,7 +312,7 @@ class _SettingsGroup extends StatelessWidget {
           for (int i = 0; i < children.length; i++) ...[
             children[i],
             if (i < children.length - 1)
-              const Divider(height: 1, color: MelaColors.border, indent: 56),
+              Divider(height: 1, color: MelaColors.brd(context), indent: 56),
           ],
         ],
       ),
@@ -314,8 +338,8 @@ class _ResetTunnelTile extends StatelessWidget {
         ),
         child: const Icon(Icons.autorenew_rounded, color: Color(0xFFEF4444), size: 20),
       ),
-      title: Text(t.pages.settings.resetTunnel, style: const TextStyle(color: MelaColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 15)),
-      trailing: const Icon(Icons.chevron_right_rounded, color: MelaColors.textMuted),
+      title: Text(t.pages.settings.resetTunnel, style: TextStyle(color: MelaColors.textPrim(context), fontWeight: FontWeight.w600, fontSize: 15)),
+      trailing: Icon(Icons.chevron_right_rounded, color: MelaColors.textHint(context)),
       onTap: () async => await ref.read(resetTunnelNotifierProvider.notifier).run(),
     );
   }
@@ -348,10 +372,10 @@ class _HwidSection extends HookConsumerWidget {
             ),
             child: const Icon(Icons.fingerprint_rounded, color: Color(0xFF6366F1), size: 20),
           ),
-          title: const Text('Device ID', style: TextStyle(color: MelaColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 15)),
-          subtitle: Text(deviceId, style: theme.textTheme.bodySmall?.copyWith(fontFamily: 'monospace', color: MelaColors.textMuted)),
+          title: Text('Device ID', style: TextStyle(color: MelaColors.textPrim(context), fontWeight: FontWeight.w600, fontSize: 15)),
+          subtitle: Text(deviceId, style: theme.textTheme.bodySmall?.copyWith(fontFamily: 'monospace', color: MelaColors.textHint(context))),
           trailing: IconButton(
-            icon: const Icon(Icons.copy_rounded, size: 18, color: MelaColors.textMuted),
+            icon: Icon(Icons.copy_rounded, size: 18, color: MelaColors.textHint(context)),
             tooltip: 'Copy ID',
             onPressed: () {
               Clipboard.setData(ClipboardData(text: deviceId));
@@ -361,11 +385,11 @@ class _HwidSection extends HookConsumerWidget {
             },
           ),
         ),
-        const Divider(height: 1, color: MelaColors.border, indent: 56),
+        Divider(height: 1, color: MelaColors.brd(context), indent: 56),
         SwitchListTile.adaptive(
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          title: const Text('Send ID with subscriptions', style: TextStyle(color: MelaColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 15)),
-          subtitle: const Text('Sends X-HWID header when fetching subscription', style: TextStyle(color: MelaColors.textMuted, fontSize: 12)),
+          title: Text('Send ID with subscriptions', style: TextStyle(color: MelaColors.textPrim(context), fontWeight: FontWeight.w600, fontSize: 15)),
+          subtitle: Text('Sends X-HWID header when fetching subscription', style: TextStyle(color: MelaColors.textHint(context), fontSize: 12)),
           secondary: Container(
             width: 36,
             height: 36,
@@ -414,14 +438,14 @@ class SettingsSection extends HookConsumerWidget {
       ),
       title: Text(
         title,
-        style: const TextStyle(
-          color: MelaColors.textPrimary,
+        style: TextStyle(
+          color: MelaColors.textPrim(context),
           fontWeight: FontWeight.w600,
           fontSize: 15,
         ),
       ),
       subtitle: subtitle,
-      trailing: const Icon(Icons.chevron_right_rounded, color: MelaColors.textMuted, size: 20),
+      trailing: Icon(Icons.chevron_right_rounded, color: MelaColors.textHint(context), size: 20),
       onTap: () => context.go(namedLocation),
     );
   }

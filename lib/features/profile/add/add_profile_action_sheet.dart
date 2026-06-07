@@ -265,9 +265,9 @@ class _AddKeySheet extends HookConsumerWidget {
       child: Container(
         margin: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: MelaColors.bgCard,
+          color: MelaColors.card(context),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: MelaColors.border),
+          border: Border.all(color: MelaColors.brd(context)),
         ),
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -285,10 +285,10 @@ class _AddKeySheet extends HookConsumerWidget {
                   child: const Icon(Icons.vpn_key_rounded, color: MelaColors.primary, size: 20),
                 ),
                 const Gap(10),
-                const Text(
+                Text(
                   'Добавить ключ',
                   style: TextStyle(
-                    color: MelaColors.textPrimary,
+                    color: MelaColors.textPrim(context),
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
                     fontFamily: null,
@@ -302,27 +302,27 @@ class _AddKeySheet extends HookConsumerWidget {
               focusNode: focusNode,
               maxLines: 4,
               minLines: 2,
-              style: const TextStyle(
-                color: MelaColors.textPrimary,
+              style: TextStyle(
+                color: MelaColors.textPrim(context),
                 fontSize: 13,
                 fontFamily: null,
               ),
               decoration: InputDecoration(
                 hintText: 'vless://... или vmess://... или ss://... или trojan://...',
-                hintStyle: const TextStyle(
-                  color: MelaColors.textMuted,
+                hintStyle: TextStyle(
+                  color: MelaColors.textHint(context),
                   fontSize: 12,
                   fontFamily: null,
                 ),
                 filled: true,
-                fillColor: MelaColors.bgSurface,
+                fillColor: MelaColors.surf(context),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: MelaColors.border),
+                  borderSide: BorderSide(color: MelaColors.brd(context)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: MelaColors.border),
+                  borderSide: BorderSide(color: MelaColors.brd(context)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -339,8 +339,8 @@ class _AddKeySheet extends HookConsumerWidget {
                   child: OutlinedButton(
                     onPressed: () => context.pop(),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: MelaColors.textSecondary,
-                      side: const BorderSide(color: MelaColors.border),
+                      foregroundColor: MelaColors.textSec(context),
+                      side: BorderSide(color: MelaColors.brd(context)),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
@@ -394,9 +394,9 @@ class _AddSubscriptionSheet extends HookConsumerWidget {
       child: Container(
         margin: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: MelaColors.bgCard,
+          color: MelaColors.card(context),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: MelaColors.border),
+          border: Border.all(color: MelaColors.brd(context)),
         ),
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -414,10 +414,10 @@ class _AddSubscriptionSheet extends HookConsumerWidget {
                   child: const Icon(Icons.link_rounded, color: Color(0xFF22C55E), size: 20),
                 ),
                 const Gap(10),
-                const Text(
+                Text(
                   'Добавить подписку',
                   style: TextStyle(
-                    color: MelaColors.textPrimary,
+                    color: MelaColors.textPrim(context),
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
                     fontFamily: null,
@@ -431,27 +431,27 @@ class _AddSubscriptionSheet extends HookConsumerWidget {
               focusNode: focusNode,
               maxLines: 3,
               minLines: 1,
-              style: const TextStyle(
-                color: MelaColors.textPrimary,
+              style: TextStyle(
+                color: MelaColors.textPrim(context),
                 fontSize: 13,
                 fontFamily: null,
               ),
               decoration: InputDecoration(
                 hintText: 'https://...',
-                hintStyle: const TextStyle(
-                  color: MelaColors.textMuted,
+                hintStyle: TextStyle(
+                  color: MelaColors.textHint(context),
                   fontSize: 12,
                   fontFamily: null,
                 ),
                 filled: true,
-                fillColor: MelaColors.bgSurface,
+                fillColor: MelaColors.surf(context),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: MelaColors.border),
+                  borderSide: BorderSide(color: MelaColors.brd(context)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: MelaColors.border),
+                  borderSide: BorderSide(color: MelaColors.brd(context)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -468,8 +468,8 @@ class _AddSubscriptionSheet extends HookConsumerWidget {
                   child: OutlinedButton(
                     onPressed: () => context.pop(),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: MelaColors.textSecondary,
-                      side: const BorderSide(color: MelaColors.border),
+                      foregroundColor: MelaColors.textSec(context),
+                      side: BorderSide(color: MelaColors.brd(context)),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),

@@ -22,6 +22,10 @@ part 'connection_notifier.g.dart';
 
 @Riverpod(keepAlive: true)
 class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
+  DateTime? _connectedAt;
+
+  DateTime? get connectedAt => _connectedAt;
+
   @override
   Stream<ConnectionStatus> build() async* {
     if (Platform.isIOS) {
@@ -56,6 +60,11 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
     ref.watch(coreRestartSignalProvider);
 
     yield* _connectionRepo.watchConnectionStatus().doOnData((event) {
+      if (event case Connected()) {
+        _connectedAt ??= DateTime.now();
+      } else if (event case Disconnected()) {
+        _connectedAt = null;
+      }
       if (event case Disconnected(connectionFailure: final _?) when PlatformUtils.isDesktop) {
         Future.microtask(() => ref.read(Preferences.startedByUser.notifier).update(false));
       }

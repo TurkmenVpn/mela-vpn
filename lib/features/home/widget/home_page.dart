@@ -40,18 +40,7 @@ class HomePage extends HookConsumerWidget {
           color: MelaColors.textSecondary,
           onPressed: () => context.goNamed('settings'),
         ),
-        title: ShaderMask(
-          shaderCallback: (bounds) => MelaColors.primaryGradient.createShader(bounds),
-          child: const Text(
-            'Mela VPN',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ),
+        title: const _MelaLogoTitle(),
         centerTitle: true,
         actions: [
           Semantics(
@@ -265,79 +254,142 @@ class _EmptyProfileHint extends ConsumerWidget {
 
     final bottomPad = MediaQuery.paddingOf(context).bottom;
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 20, 20, bottomPad + 24),
+      padding: EdgeInsets.fromLTRB(20, 0, 20, bottomPad + 24),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Paste button
-          GestureDetector(
-            onTap: pasteClipboard,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              decoration: BoxDecoration(
-                color: MelaColors.surf(context),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: MelaColors.brd(context), width: 1.5),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.content_paste_rounded, color: MelaColors.textPrim(context), size: 22),
-                  const Gap(10),
-                  Text(
-                    'Вставить ключ',
-                    style: TextStyle(
-                      color: MelaColors.textPrim(context),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
+          // Empty state illustration
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              color: MelaColors.primary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+              border: Border.all(color: MelaColors.primary.withValues(alpha: 0.2), width: 1.5),
             ),
+            child: const Icon(Icons.shield_outlined, size: 34, color: MelaColors.primary),
           ),
-          const Gap(14),
-          // QR button
-          GestureDetector(
-            onTap: scanQr,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [MelaColors.primary, Color(0xFF5B8BF6)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: MelaColors.primary.withValues(alpha: 0.4),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.qr_code_scanner_rounded, color: Colors.white, size: 22),
-                  Gap(10),
-                  Text(
-                    'Сканировать QR',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+          const Gap(16),
+          Text(
+            'Нет активного ключа',
+            style: TextStyle(color: MelaColors.textPrim(context), fontSize: 17, fontWeight: FontWeight.w700),
+          ),
+          const Gap(6),
+          Text(
+            'Вставьте ссылку или отсканируйте QR',
+            style: TextStyle(color: MelaColors.textHint(context), fontSize: 13),
+            textAlign: TextAlign.center,
+          ),
+          const Gap(28),
+          // Inline action buttons (Paste + QR)
+          Row(
+            children: [
+              // Paste button
+              Expanded(
+                child: GestureDetector(
+                  onTap: pasteClipboard,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: MelaColors.surf(context),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: MelaColors.brd(context), width: 1.5),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.content_paste_rounded, color: MelaColors.primary, size: 22),
+                        const Gap(6),
+                        Text(
+                          'Вставить',
+                          style: TextStyle(
+                            color: MelaColors.textPrim(context),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
+              const Gap(12),
+              // QR button
+              Expanded(
+                child: GestureDetector(
+                  onTap: scanQr,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [MelaColors.primary, Color(0xFF5B8BF6)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: MelaColors.primary.withValues(alpha: 0.35),
+                          blurRadius: 14,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: const Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.qr_code_scanner_rounded, color: Colors.white, size: 22),
+                        Gap(6),
+                        Text(
+                          'Сканировать QR',
+                          style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
+    );
+  }
+}
+
+class _MelaLogoTitle extends StatelessWidget {
+  const _MelaLogoTitle();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // Shield icon with gradient
+        ShaderMask(
+          shaderCallback: (bounds) => MelaColors.primaryGradient.createShader(bounds),
+          blendMode: BlendMode.srcIn,
+          child: const Icon(Icons.security_rounded, size: 22, color: Colors.white),
+        ),
+        const Gap(7),
+        ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            colors: [MelaColors.primary, Color(0xFF5B8BF6), Color(0xFF06B6D4)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ).createShader(bounds),
+          child: const Text(
+            'Mela VPN',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
