@@ -77,6 +77,7 @@ class ServiceNotification(private val status: MutableLiveData<Status>, private v
                 .setContentTitle("MelaVPN")
                 .setOnlyAlertOnce(true)
                 .setSmallIcon(R.drawable.ic_stat_logo)
+                .setColor(0xFF455FE9.toInt())
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .setContentIntent(
                         PendingIntent.getActivity(

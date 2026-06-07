@@ -24,7 +24,17 @@ abstract class GithubReleaseParser {
     final preRelease = json["prerelease"] as bool;
     final publishedAt = DateTime.parse(json["published_at"] as String);
     final assets = (json['assets'] as List?)?.cast<Map<String, dynamic>>() ?? [];
-    final apkAsset = assets.firstOrNullWhere((a) => (a['name'] as String? ?? '').endsWith('.apk'));
+    // Prefer universal APK (no ABI suffix). Fall back to first APK found.
+    bool isUniversal(Map<String, dynamic> a) {
+      final name = (a['name'] as String? ?? '').toLowerCase();
+      return name.endsWith('.apk') &&
+          !name.contains('-armeabi-') &&
+          !name.contains('-arm64-') &&
+          !name.contains('-x86_64-') &&
+          !name.contains('-x86-');
+    }
+    final apkAsset = assets.firstOrNullWhere(isUniversal) ??
+        assets.firstOrNullWhere((a) => (a['name'] as String? ?? '').endsWith('.apk'));
     final apkUrl = apkAsset?['browser_download_url'] as String?;
     return RemoteVersionEntity(
       version: version,

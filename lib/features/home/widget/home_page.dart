@@ -289,17 +289,18 @@ class _EmptyProfileHint extends ConsumerWidget {
                 child: GestureDetector(
                   onTap: pasteClipboard,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                     decoration: BoxDecoration(
                       color: MelaColors.surf(context),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: MelaColors.brd(context), width: 1.5),
                     ),
-                    child: Column(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.content_paste_rounded, color: MelaColors.primary, size: 22),
-                        const Gap(6),
+                        Icon(Icons.content_paste_rounded, color: MelaColors.primary, size: 18),
+                        const Gap(7),
                         Text(
                           'Вставить',
                           style: TextStyle(
@@ -319,7 +320,7 @@ class _EmptyProfileHint extends ConsumerWidget {
                 child: GestureDetector(
                   onTap: scanQr,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [MelaColors.primary, Color(0xFF5B8BF6)],
@@ -335,11 +336,12 @@ class _EmptyProfileHint extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    child: const Column(
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.qr_code_scanner_rounded, color: Colors.white, size: 22),
-                        Gap(6),
+                        Icon(Icons.qr_code_scanner_rounded, color: Colors.white, size: 18),
+                        Gap(7),
                         Text(
                           'Сканировать QR',
                           style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
