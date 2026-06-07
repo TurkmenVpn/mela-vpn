@@ -10,6 +10,7 @@ import 'package:melavpn/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:melavpn/core/router/dialog/dialog_notifier.dart';
 import 'package:melavpn/core/router/go_router/helper/active_breakpoint_notifier.dart';
 import 'package:melavpn/core/theme/mela_colors.dart';
+import 'package:melavpn/features/connection/notifier/connection_notifier.dart';
 import 'package:melavpn/features/home/widget/connection_button.dart';
 import 'package:melavpn/features/home/widget/home_traffic_stats.dart';
 import 'package:melavpn/features/profile/add/add_profile_action_sheet.dart';
@@ -359,31 +360,21 @@ class _EmptyProfileHint extends ConsumerWidget {
   }
 }
 
-class _MelaLogoTitle extends StatelessWidget {
+class _MelaLogoTitle extends ConsumerWidget {
   const _MelaLogoTitle();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isConnected = ref.watch(connectionNotifierProvider).valueOrNull?.isConnected ?? false;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Shield icon with gradient + glow shadow
-        Container(
-          decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                color: MelaColors.primary.withValues(alpha: 0.55),
-                blurRadius: 18,
-                spreadRadius: 1,
-              ),
-            ],
-          ),
-          child: ShaderMask(
-            shaderCallback: (bounds) => MelaColors.primaryGradient.createShader(bounds),
-            blendMode: BlendMode.srcIn,
-            child: const Icon(Icons.security_rounded, size: 22, color: Colors.white),
-          ),
+        ShaderMask(
+          shaderCallback: (bounds) => MelaColors.primaryGradient.createShader(bounds),
+          blendMode: BlendMode.srcIn,
+          child: const Icon(Icons.security_rounded, size: 22, color: Colors.white),
         ),
         const Gap(7),
         ShaderMask(
@@ -399,21 +390,52 @@ class _MelaLogoTitle extends StatelessWidget {
               fontWeight: FontWeight.w900,
               color: Colors.white,
               letterSpacing: 0.3,
-              shadows: [
-                Shadow(
-                  color: Color(0x884F46E5),
-                  blurRadius: 16,
-                  offset: Offset(0, 2),
-                ),
-                Shadow(
-                  color: Color(0x554F46E5),
-                  blurRadius: 32,
-                ),
-              ],
             ),
           ),
         ),
+        if (isConnected) ...[
+          const Gap(8),
+          const _VpnActiveBadge(),
+        ],
       ],
+    );
+  }
+}
+
+class _VpnActiveBadge extends StatelessWidget {
+  const _VpnActiveBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: const Color(0xFF00C853),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF00C853).withValues(alpha: 0.45),
+            blurRadius: 8,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.wifi_rounded, size: 11, color: Colors.white),
+          const Gap(3),
+          const Text(
+            'VPN',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
