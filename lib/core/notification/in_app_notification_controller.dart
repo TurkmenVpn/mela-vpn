@@ -35,7 +35,8 @@ class InAppNotificationController with AppLogger {
   }) {
     toastification.dismissAll();
 
-    final isDark = _isDark;
+    final isDark  = _isDark;
+    final isLong  = message.length > 32;
 
     final (accentColor, iconData) = switch (type) {
       NotificationType.success => (MelaColors.connected, Icons.check_rounded),
@@ -43,21 +44,12 @@ class InAppNotificationController with AppLogger {
       NotificationType.info    => (MelaColors.primary,     Icons.info_rounded),
     };
 
-    // ── Цвета по теме ──────────────────────────────────────────────────────
     final bgColor   = isDark ? const Color(0xFF2C2C2E) : Colors.white;
     final textColor = isDark ? const Color(0xFFF2F2F7) : const Color(0xFF1C1C1E);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.06)
+        : Colors.black.withValues(alpha: 0.05);
 
-    // ── Иконка — маленькая точка ───────────────────────────────────────────
-    final iconWidget = Container(
-      width: 6,
-      height: 6,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: accentColor,
-      ),
-    );
-
-    // ── Тени: для светлой — глубокие iOS-тени, для тёмной — цветное свечение
     final shadows = isDark
         ? <BoxShadow>[
             BoxShadow(
@@ -84,6 +76,61 @@ class InAppNotificationController with AppLogger {
             ),
           ];
 
+    // ── Режим: короткий (пилл сверху) / длинный (карточка по центру) ────────
+    if (isLong) {
+      // Центр экрана — иконка + текст, полноценная карточка
+      return toastification.show(
+        title: Text(
+          message,
+          style: TextStyle(
+            color: textColor,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            height: 1.4,
+          ),
+          maxLines: 4,
+          overflow: TextOverflow.ellipsis,
+        ),
+        icon: Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: accentColor.withValues(alpha: isDark ? 0.20 : 0.12),
+          ),
+          child: Icon(iconData, color: accentColor, size: 17),
+        ),
+        type: type._toastificationType,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        margin: const EdgeInsets.symmetric(horizontal: 32),
+        autoCloseDuration: duration,
+        style: ToastificationStyle.flat,
+        backgroundColor: bgColor,
+        foregroundColor: textColor,
+        borderRadius: BorderRadius.circular(20),
+        borderSide: BorderSide(color: borderColor),
+        boxShadow: shadows,
+        pauseOnHover: true,
+        showProgressBar: false,
+        dragToClose: true,
+        closeOnClick: true,
+        closeButtonShowType: CloseButtonShowType.always,
+        animationDuration: const Duration(milliseconds: 350),
+        animationBuilder: (context, animation, alignment, child) {
+          final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutBack);
+          return ScaleTransition(
+            scale: Tween<double>(begin: 0.85, end: 1.0).animate(curved),
+            child: FadeTransition(
+              opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+              child: child,
+            ),
+          );
+        },
+      );
+    }
+
+    // Короткий — тонкий пилл у верхнего края, −25% от предыдущего размера
     return toastification.show(
       title: Text(
         message,
@@ -94,32 +141,31 @@ class InAppNotificationController with AppLogger {
           height: 1.0,
           letterSpacing: -0.1,
         ),
-        maxLines: 2,
+        maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      icon: iconWidget,
+      icon: Container(
+        width: 6,
+        height: 6,
+        decoration: BoxDecoration(shape: BoxShape.circle, color: accentColor),
+      ),
       type: type._toastificationType,
-      // ── Максимально вверх, минимальная высота ─────────────────────────────
       alignment: Alignment.topCenter,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 1),
-      margin: const EdgeInsets.symmetric(horizontal: 48),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 1),
+      margin: const EdgeInsets.symmetric(horizontal: 60),
       autoCloseDuration: duration,
       style: ToastificationStyle.flat,
       backgroundColor: bgColor,
       foregroundColor: textColor,
       borderRadius: BorderRadius.circular(20),
-      borderSide: BorderSide(
-        color: isDark
-            ? Colors.white.withValues(alpha: 0.06)
-            : Colors.black.withValues(alpha: 0.05),
-      ),
+      borderSide: BorderSide(color: borderColor),
       boxShadow: shadows,
       pauseOnHover: true,
       showProgressBar: false,
       dragToClose: true,
       closeOnClick: true,
       closeButtonShowType: CloseButtonShowType.always,
-      animationDuration: const Duration(milliseconds: 400),
+      animationDuration: const Duration(milliseconds: 320),
       animationBuilder: (context, animation, alignment, child) {
         return SlideTransition(
           position: Tween<Offset>(
