@@ -102,12 +102,12 @@ class InAppNotificationController with AppLogger {
       // ── Максимально вверх, минимальная высота ─────────────────────────────
       alignment: Alignment.topCenter,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 1),
-      margin: const EdgeInsets.symmetric(horizontal: 20),
+      margin: const EdgeInsets.symmetric(horizontal: 48),
       autoCloseDuration: duration,
       style: ToastificationStyle.flat,
       backgroundColor: bgColor,
       foregroundColor: textColor,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(20),
       borderSide: BorderSide(
         color: isDark
             ? Colors.white.withValues(alpha: 0.06)
