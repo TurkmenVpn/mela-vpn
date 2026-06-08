@@ -43,10 +43,10 @@ class InAppNotificationController with AppLogger {
       NotificationType.info    => (MelaColors.primary,         Icons.info_rounded),
     };
 
-    // Светлая тема — нежный тинт акцентного цвета; тёмная — глубокий тёмный
+    // Матовое стекло: полупрозрачный фон + applyBlurEffect
     final bgColor = isDark
-        ? const Color(0xFF2C2C2E)
-        : accentColor.withValues(alpha: 0.06);
+        ? const Color(0xFF2C2C2E).withValues(alpha: 0.80)
+        : Colors.white.withValues(alpha: 0.72);
 
     final textColor = isDark ? const Color(0xFFF2F2F7) : const Color(0xFF1C1C1E);
 
@@ -140,6 +140,7 @@ class InAppNotificationController with AppLogger {
               ),
             ],
       // Прогресс-линия снизу — показывает время до закрытия
+      applyBlurEffect: true,
       showProgressBar: true,
       progressBarTheme: ProgressIndicatorThemeData(
         color: accentColor.withValues(alpha: 0.60),
