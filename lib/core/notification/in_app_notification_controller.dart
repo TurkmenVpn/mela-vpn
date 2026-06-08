@@ -54,16 +54,16 @@ class InAppNotificationController with AppLogger {
     Widget iconWidget;
     if (type == NotificationType.success) {
       iconWidget = Container(
-        width: 16,
-        height: 16,
+        width: 12,
+        height: 12,
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
           color: MelaColors.connected,
         ),
-        child: const Icon(Icons.check_rounded, color: Colors.white, size: 10),
+        child: const Icon(Icons.check_rounded, color: Colors.white, size: 8),
       );
     } else {
-      iconWidget = Icon(iconData, color: accentColor, size: 13);
+      iconWidget = Icon(iconData, color: accentColor, size: 11);
     }
 
     final List<BoxShadow> shadows = isDark
@@ -87,9 +87,9 @@ class InAppNotificationController with AppLogger {
         message,
         style: TextStyle(
           color: textColor,
-          fontSize: 11.5,
+          fontSize: 11,
           fontWeight: FontWeight.w500,
-          height: 1.2,
+          height: 1.1,
           letterSpacing: -0.1,
         ),
         maxLines: 1,
@@ -99,8 +99,8 @@ class InAppNotificationController with AppLogger {
       type: type._toastificationType,
       // ── В зоне AppBar между + (справа) и настройками (слева) ─────────────
       alignment: Alignment.topCenter,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-      margin: const EdgeInsets.only(top: 30, left: 62, right: 62),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      margin: const EdgeInsets.only(top: 25, left: 62, right: 62),
       autoCloseDuration: duration,
       style: ToastificationStyle.flat,
       backgroundColor: bgColor,
