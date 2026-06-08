@@ -16,6 +16,7 @@ import 'package:melavpn/features/app_update/notifier/app_update_state.dart';
 import 'package:melavpn/features/profile/notifier/active_profile_notifier.dart';
 import 'package:melavpn/features/settings/notifier/config_option/config_option_notifier.dart';
 import 'package:melavpn/features/settings/notifier/reset_tunnel/reset_tunnel_notifier.dart';
+import 'package:melavpn/core/notification/in_app_notification_controller.dart';
 import 'package:melavpn/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -52,9 +53,9 @@ class SettingsPage extends HookConsumerWidget {
               .read(dialogNotifierProvider.notifier)
               .showNewVersion(currentVersion: appInfo.presentVersion, newVersion: versionInfo, canIgnore: false);
         case AppUpdateStateError(:final error):
-          CustomToast.error(t.presentShortError(error)).show(context);
+          ref.read(inAppNotificationControllerProvider).showErrorToast(t.presentShortError(error));
         case AppUpdateStateNotAvailable():
-          CustomToast.success(t.pages.about.notAvailableMsg).show(context);
+          ref.read(inAppNotificationControllerProvider).showSuccessToast(t.pages.about.notAvailableMsg);
         default:
           break;
       }
@@ -379,9 +380,7 @@ class _HwidSection extends HookConsumerWidget {
             tooltip: 'Copy ID',
             onPressed: () {
               Clipboard.setData(ClipboardData(text: deviceId));
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Device ID copied'), duration: Duration(seconds: 2)),
-              );
+              ref.read(inAppNotificationControllerProvider).showSuccessToast('Device ID copied');
             },
           ),
         ),

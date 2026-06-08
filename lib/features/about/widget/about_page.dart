@@ -12,6 +12,7 @@ import 'package:melavpn/core/widget/adaptive_icon.dart';
 import 'package:melavpn/features/app_update/notifier/app_update_notifier.dart';
 import 'package:melavpn/features/app_update/notifier/app_update_state.dart';
 import 'package:melavpn/gen/assets.gen.dart';
+import 'package:melavpn/core/notification/in_app_notification_controller.dart';
 import 'package:melavpn/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -32,9 +33,9 @@ class AboutPage extends HookConsumerWidget {
               .read(dialogNotifierProvider.notifier)
               .showNewVersion(currentVersion: appInfo.presentVersion, newVersion: versionInfo, canIgnore: false);
         case AppUpdateStateError(:final error):
-          return CustomToast.error(t.presentShortError(error)).show(context);
+          ref.read(inAppNotificationControllerProvider).showErrorToast(t.presentShortError(error));
         case AppUpdateStateNotAvailable():
-          return CustomToast.success(t.pages.about.notAvailableMsg).show(context);
+          ref.read(inAppNotificationControllerProvider).showSuccessToast(t.pages.about.notAvailableMsg);
       }
     });
 

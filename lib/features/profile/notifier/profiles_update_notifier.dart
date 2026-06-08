@@ -85,8 +85,8 @@ class ForegroundProfilesUpdateNotifier extends _$ForegroundProfilesUpdateNotifie
           .first;
 
       await for (final profile in Stream.fromIterable(remoteProfiles)) {
-        final updateInterval = profile.options?.updateInterval;
-        if (force || updateInterval != null && updateInterval <= DateTime.now().difference(profile.lastUpdate)) {
+        final updateInterval = profile.options?.updateInterval ?? const Duration(hours: 24);
+        if (force || updateInterval <= DateTime.now().difference(profile.lastUpdate)) {
           final t = ref.read(translationsProvider).requireValue;
           await ref
               .read(profileRepositoryProvider)

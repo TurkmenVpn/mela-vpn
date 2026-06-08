@@ -162,7 +162,11 @@ class ProfileParser {
           userAgent: _ref.read(ConfigOptions.useXrayCoreWhenPossible)
               ? _httpClient.userAgent.replaceAll("MelaVPNNext", "MelaVPNNextX")
               : null,
-          extraHeaders: hwid != null ? {'X-HWID': hwid} : null,
+          extraHeaders: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            if (hwid != null) 'X-HWID': hwid,
+          },
         )
         .catchError((err) {
           if (CancelToken.isCancel(err as DioException)) {

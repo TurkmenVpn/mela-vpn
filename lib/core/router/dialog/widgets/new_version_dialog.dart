@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:melavpn/core/localization/translations.dart';
 import 'package:melavpn/features/app_update/model/remote_version_entity.dart';
 import 'package:melavpn/features/app_update/notifier/app_update_notifier.dart';
+import 'package:melavpn/core/notification/in_app_notification_controller.dart';
 import 'package:melavpn/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:open_filex/open_filex.dart';
@@ -47,11 +48,7 @@ class NewVersionDialog extends HookConsumerWidget with PresLogger {
         if (e is! DioException || e.type != DioExceptionType.cancel) {
           loggy.warning("download failed", e);
           downloadedPath.value = null;
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${t.common.update}: ${t.common.msg.export.file.failure}')),
-            );
-          }
+          ref.read(inAppNotificationControllerProvider).showErrorToast('${t.common.update}: ${t.common.msg.export.file.failure}');
         }
       } finally {
         isDownloading.value = false;

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:melavpn/core/notification/in_app_notification_controller.dart';
 import 'package:melavpn/core/theme/mela_colors.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-class QrCodeDialog extends StatelessWidget {
+class QrCodeDialog extends ConsumerWidget {
   const QrCodeDialog(this.data, {super.key, this.message, this.width = 268, this.backgroundColor = Colors.white});
 
   final String data;
@@ -13,7 +15,7 @@ class QrCodeDialog extends StatelessWidget {
   final Color backgroundColor;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final qrSize = width - 32;
 
     return Padding(
@@ -105,12 +107,7 @@ class QrCodeDialog extends StatelessWidget {
                 GestureDetector(
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: data));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Ссылка скопирована'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
+                    ref.read(inAppNotificationControllerProvider).showSuccessToast('Ссылка скопирована');
                   },
                   child: Container(
                     width: double.infinity,
