@@ -130,28 +130,27 @@ class InAppNotificationController with AppLogger {
       );
     }
 
-    // Короткий — тонкий пилл у верхнего края, −25% от предыдущего размера
+    // Короткий — пилл 10px высотой у верхнего края
     return toastification.show(
-      title: Text(
-        message,
-        style: TextStyle(
-          color: textColor,
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-          height: 1.0,
-          letterSpacing: -0.1,
+      title: SizedBox(
+        height: 10,
+        child: Text(
+          message,
+          style: TextStyle(
+            color: textColor,
+            fontSize: 9,
+            fontWeight: FontWeight.w500,
+            height: 1.0,
+            letterSpacing: -0.1,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
       ),
-      icon: Container(
-        width: 6,
-        height: 6,
-        decoration: BoxDecoration(shape: BoxShape.circle, color: accentColor),
-      ),
+      icon: const SizedBox.shrink(),
       type: type._toastificationType,
       alignment: Alignment.topCenter,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 1),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       margin: const EdgeInsets.symmetric(horizontal: 60),
       autoCloseDuration: duration,
       style: ToastificationStyle.flat,
