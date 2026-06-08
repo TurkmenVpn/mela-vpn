@@ -31,140 +31,126 @@ class InAppNotificationController with AppLogger {
   ToastificationItem _show(
     String message, {
     NotificationType type = NotificationType.info,
-    Duration duration = const Duration(seconds: 3),
+    Duration duration = const Duration(seconds: 4),
   }) {
     toastification.dismissAll();
 
-    final isDark  = _isDark;
-    final isLong  = message.length > 32;
+    final isDark = _isDark;
 
     final (accentColor, iconData) = switch (type) {
-      NotificationType.success => (MelaColors.connected, Icons.check_rounded),
-      NotificationType.error   => (const Color(0xFFFF453A), Icons.close_rounded),
-      NotificationType.info    => (MelaColors.primary,     Icons.info_rounded),
+      NotificationType.success => (MelaColors.connected,       Icons.check_rounded),
+      NotificationType.error   => (const Color(0xFFFF453A),    Icons.close_rounded),
+      NotificationType.info    => (MelaColors.primary,         Icons.info_rounded),
     };
 
-    final bgColor   = isDark ? const Color(0xFF2C2C2E) : Colors.white;
+    // Светлая тема — нежный тинт акцентного цвета; тёмная — глубокий тёмный
+    final bgColor = isDark
+        ? const Color(0xFF2C2C2E)
+        : accentColor.withValues(alpha: 0.06);
+
     final textColor = isDark ? const Color(0xFFF2F2F7) : const Color(0xFF1C1C1E);
-    final borderColor = isDark
-        ? Colors.white.withValues(alpha: 0.06)
-        : Colors.black.withValues(alpha: 0.05);
 
-    final shadows = isDark
-        ? <BoxShadow>[
-            BoxShadow(
-              color: accentColor.withValues(alpha: 0.18),
-              blurRadius: 24,
-              offset: const Offset(0, 6),
+    // ── Carbon-style: левая полоса + иконка + текст ────────────────────────
+    final content = IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Левая акцентная полоска
+          Container(
+            width: 3,
+            decoration: BoxDecoration(
+              color: accentColor,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                bottomLeft: Radius.circular(12),
+              ),
             ),
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.50),
-              blurRadius: 14,
-              offset: const Offset(0, 3),
-            ),
-          ]
-        : <BoxShadow>[
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ];
-
-    // ── Режим: короткий (пилл сверху) / длинный (карточка по центру) ────────
-    if (isLong) {
-      // Центр экрана — иконка + текст, полноценная карточка
-      return toastification.show(
-        title: Text(
-          message,
-          style: TextStyle(
-            color: textColor,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            height: 1.4,
           ),
-          maxLines: 4,
-          overflow: TextOverflow.ellipsis,
-        ),
-        icon: Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: accentColor.withValues(alpha: isDark ? 0.20 : 0.12),
-          ),
-          child: Icon(iconData, color: accentColor, size: 17),
-        ),
-        type: type._toastificationType,
-        alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        margin: const EdgeInsets.symmetric(horizontal: 32),
-        autoCloseDuration: duration,
-        style: ToastificationStyle.flat,
-        backgroundColor: bgColor,
-        foregroundColor: textColor,
-        borderRadius: BorderRadius.circular(20),
-        borderSide: BorderSide(color: borderColor),
-        boxShadow: shadows,
-        pauseOnHover: true,
-        showProgressBar: false,
-        dragToClose: true,
-        closeOnClick: true,
-        closeButtonShowType: CloseButtonShowType.always,
-        animationDuration: const Duration(milliseconds: 350),
-        animationBuilder: (context, animation, alignment, child) {
-          final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutBack);
-          return ScaleTransition(
-            scale: Tween<double>(begin: 0.85, end: 1.0).animate(curved),
-            child: FadeTransition(
-              opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
-              child: child,
+          const SizedBox(width: 10),
+          // Иконка в кружке
+          Center(
+            child: Container(
+              width: 26,
+              height: 26,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: accentColor.withValues(alpha: isDark ? 0.18 : 0.14),
+              ),
+              child: Icon(iconData, color: accentColor, size: 14),
             ),
-          );
-        },
-      );
-    }
-
-    // Короткий — пилл 10px высотой у верхнего края
-    return toastification.show(
-      title: SizedBox(
-        height: 10,
-        child: Text(
-          message,
-          style: TextStyle(
-            color: textColor,
-            fontSize: 9,
-            fontWeight: FontWeight.w500,
-            height: 1.0,
-            letterSpacing: -0.1,
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+          const SizedBox(width: 10),
+          // Текст
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Text(
+                message,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  height: 1.35,
+                  letterSpacing: -0.1,
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+          const SizedBox(width: 4),
+        ],
       ),
+    );
+
+    return toastification.show(
+      title: content,
       icon: const SizedBox.shrink(),
       type: type._toastificationType,
+      // Верх экрана — поверх настроек и всего остального
       alignment: Alignment.topCenter,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      margin: const EdgeInsets.symmetric(horizontal: 60),
+      padding: EdgeInsets.zero,
+      margin: const EdgeInsets.only(top: 8, left: 14, right: 14),
       autoCloseDuration: duration,
       style: ToastificationStyle.flat,
       backgroundColor: bgColor,
-      foregroundColor: textColor,
-      borderRadius: BorderRadius.circular(20),
-      borderSide: BorderSide(color: borderColor),
-      boxShadow: shadows,
+      foregroundColor: accentColor,
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(
+        color: accentColor.withValues(alpha: isDark ? 0.22 : 0.18),
+      ),
+      boxShadow: isDark
+          ? [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.45),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ]
+          : [
+              BoxShadow(
+                color: accentColor.withValues(alpha: 0.10),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 6,
+                offset: const Offset(0, 1),
+              ),
+            ],
+      // Прогресс-линия снизу — показывает время до закрытия
+      showProgressBar: true,
+      progressBarTheme: ProgressIndicatorThemeData(
+        color: accentColor.withValues(alpha: 0.60),
+        linearTrackColor: accentColor.withValues(alpha: 0.10),
+        linearMinHeight: 2,
+      ),
       pauseOnHover: true,
-      showProgressBar: false,
       dragToClose: true,
-      closeOnClick: true,
+      closeOnClick: false,
       closeButtonShowType: CloseButtonShowType.always,
-      animationDuration: const Duration(milliseconds: 320),
+      animationDuration: const Duration(milliseconds: 340),
       animationBuilder: (context, animation, alignment, child) {
         return SlideTransition(
           position: Tween<Offset>(
@@ -188,7 +174,7 @@ class InAppNotificationController with AppLogger {
 
   ToastificationItem? showInfoToast(
     String message, {
-    Duration duration = const Duration(seconds: 3),
+    Duration duration = const Duration(seconds: 4),
   }) =>
       _show(message, duration: duration);
 }
