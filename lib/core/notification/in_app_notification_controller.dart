@@ -39,45 +39,48 @@ class InAppNotificationController with AppLogger {
 
     final (accentColor, iconData) = switch (type) {
       NotificationType.success => (MelaColors.connected, Icons.check_rounded),
-      NotificationType.error   => (const Color(0xFFFF5A5A), Icons.error_rounded),
-      NotificationType.info    => (MelaColors.primary, Icons.info_rounded),
+      NotificationType.error   => (const Color(0xFFFF453A), Icons.close_rounded),
+      NotificationType.info    => (MelaColors.primary,     Icons.info_rounded),
     };
 
-    final bgColor   = isDark ? const Color(0xFF1E1E21) : Colors.white;
-    final textColor = isDark ? const Color(0xFFEEEEEE) : const Color(0xFF1C1C1E);
+    // ── Цвета по теме ──────────────────────────────────────────────────────
+    final bgColor   = isDark ? const Color(0xFF2C2C2E) : Colors.white;
+    final textColor = isDark ? const Color(0xFFF2F2F7) : const Color(0xFF1C1C1E);
 
-    final borderColor = isDark
-        ? accentColor.withValues(alpha: 0.22)
-        : accentColor.withValues(alpha: 0.18);
+    // ── Иконка — цветной кружок ────────────────────────────────────────────
+    final iconWidget = Container(
+      width: 30,
+      height: 30,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: accentColor.withValues(alpha: isDark ? 0.20 : 0.12),
+      ),
+      child: Icon(iconData, color: accentColor, size: 16),
+    );
 
-    // ── Micro icon ────────────────────────────────────────────────────────
-    Widget iconWidget;
-    if (type == NotificationType.success) {
-      iconWidget = Container(
-        width: 12,
-        height: 12,
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
-          color: MelaColors.connected,
-        ),
-        child: const Icon(Icons.check_rounded, color: Colors.white, size: 8),
-      );
-    } else {
-      iconWidget = Icon(iconData, color: accentColor, size: 11);
-    }
-
-    final List<BoxShadow> shadows = isDark
-        ? [
+    // ── Тени: для светлой — глубокие iOS-тени, для тёмной — цветное свечение
+    final shadows = isDark
+        ? <BoxShadow>[
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.45),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+              color: accentColor.withValues(alpha: 0.18),
+              blurRadius: 24,
+              offset: const Offset(0, 6),
+            ),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.50),
+              blurRadius: 14,
+              offset: const Offset(0, 3),
             ),
           ]
-        : [
+        : <BoxShadow>[
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 8,
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 6,
               offset: const Offset(0, 2),
             ),
           ];
@@ -87,39 +90,42 @@ class InAppNotificationController with AppLogger {
         message,
         style: TextStyle(
           color: textColor,
-          fontSize: 11,
+          fontSize: 13,
           fontWeight: FontWeight.w500,
-          height: 1.1,
+          height: 1.3,
           letterSpacing: -0.1,
         ),
-        maxLines: 1,
+        maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
       icon: iconWidget,
       type: type._toastificationType,
-      // ── В зоне AppBar между + (справа) и настройками (слева) ─────────────
-      alignment: Alignment.topCenter,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      margin: const EdgeInsets.only(top: 25, left: 62, right: 62),
+      // ── Плавает над карточкой профилей, не мешает кругу и AppBar ──────────
+      alignment: Alignment.bottomCenter,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      margin: const EdgeInsets.only(bottom: 96, left: 24, right: 24),
       autoCloseDuration: duration,
       style: ToastificationStyle.flat,
       backgroundColor: bgColor,
       foregroundColor: textColor,
-      borderRadius: BorderRadius.circular(18),
-      borderSide: BorderSide(color: borderColor),
+      borderRadius: BorderRadius.circular(22),
+      borderSide: BorderSide(
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.06)
+            : Colors.black.withValues(alpha: 0.05),
+      ),
       boxShadow: shadows,
       pauseOnHover: true,
       showProgressBar: false,
       dragToClose: true,
       closeOnClick: true,
-      closeButtonShowType: CloseButtonShowType.none,
-      animationDuration: const Duration(milliseconds: 320),
+      closeButtonShowType: CloseButtonShowType.always,
+      animationDuration: const Duration(milliseconds: 400),
       animationBuilder: (context, animation, alignment, child) {
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0, -1.5),
-            end: Offset.zero,
-          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutBack)),
+        final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutBack);
+        return ScaleTransition(
+          scale: Tween<double>(begin: 0.88, end: 1.0).animate(curved),
+          alignment: Alignment.bottomCenter,
           child: FadeTransition(
             opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
             child: child,
@@ -135,7 +141,10 @@ class InAppNotificationController with AppLogger {
   ToastificationItem? showSuccessToast(String message) =>
       _show(message, type: NotificationType.success);
 
-  ToastificationItem? showInfoToast(String message, {Duration duration = const Duration(seconds: 3)}) =>
+  ToastificationItem? showInfoToast(
+    String message, {
+    Duration duration = const Duration(seconds: 3),
+  }) =>
       _show(message, duration: duration);
 }
 
