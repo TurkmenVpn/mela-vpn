@@ -50,75 +50,51 @@ class InAppNotificationController with AppLogger {
         ? accentColor.withValues(alpha: 0.22)
         : accentColor.withValues(alpha: 0.18);
 
-    // ── Icon / sticker ─────────────────────────────────────────────────────
+    // ── Compact icon — тонкий стиль ────────────────────────────────────────
     Widget iconWidget;
     if (type == NotificationType.success) {
-      // iOS-style green checkmark sticker
       iconWidget = Container(
-        width: 40,
-        height: 40,
+        width: 22,
+        height: 22,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [
-              MelaColors.connected,
-              Color.lerp(MelaColors.connected, const Color(0xFF059669), 0.6)!,
-            ],
-            center: const Alignment(-0.3, -0.3),
-            radius: 0.9,
-          ),
+          color: MelaColors.connected,
           boxShadow: [
             BoxShadow(
-              color: MelaColors.connected.withValues(alpha: isDark ? 0.45 : 0.30),
-              blurRadius: 12,
-              offset: const Offset(0, 3),
+              color: MelaColors.connected.withValues(alpha: 0.40),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
-        child: const Icon(Icons.check_rounded, color: Colors.white, size: 22),
+        child: const Icon(Icons.check_rounded, color: Colors.white, size: 13),
       );
     } else {
-      iconWidget = Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: accentColor.withValues(alpha: isDark ? 0.16 : 0.10),
-          border: Border.all(
-            color: accentColor.withValues(alpha: isDark ? 0.30 : 0.20),
-          ),
-        ),
-        child: Icon(iconData, color: accentColor, size: 20),
-      );
+      iconWidget = Icon(iconData, color: accentColor, size: 15);
     }
 
     final List<BoxShadow> shadows = isDark
         ? [
             BoxShadow(
-              color: accentColor.withValues(alpha: 0.12),
-              blurRadius: 28,
-              offset: const Offset(0, 8),
+              color: accentColor.withValues(alpha: 0.10),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
             ),
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.55),
-              blurRadius: 18,
-              offset: const Offset(0, 4),
+              color: Colors.black.withValues(alpha: 0.50),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
             ),
           ]
         : [
             BoxShadow(
-              color: accentColor.withValues(alpha: 0.10),
-              blurRadius: 20,
-              offset: const Offset(0, 6),
+              color: accentColor.withValues(alpha: 0.08),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
             ),
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.07),
-              blurRadius: 12,
-              offset: const Offset(0, 2),
-            ),
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 4,
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 6,
               offset: const Offset(0, 1),
             ),
           ];
@@ -128,25 +104,25 @@ class InAppNotificationController with AppLogger {
         message,
         style: TextStyle(
           color: textColor,
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          height: 1.35,
+          fontSize: 12.5,
+          fontWeight: FontWeight.w500,
+          height: 1.3,
           letterSpacing: -0.1,
         ),
-        maxLines: 2,
+        maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
       icon: iconWidget,
       type: type._toastificationType,
-      // ── Bottom center — between AppBar (+) and the profile card ──────────
-      alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-      margin: const EdgeInsets.only(bottom: 40, left: 20, right: 20),
+      // ── Top center — тонкая полоска между + и настройками в AppBar ───────
+      alignment: Alignment.topCenter,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      margin: const EdgeInsets.only(top: 50, left: 58, right: 58),
       autoCloseDuration: duration,
       style: ToastificationStyle.flat,
       backgroundColor: bgColor,
       foregroundColor: textColor,
-      borderRadius: BorderRadius.circular(26),
+      borderRadius: BorderRadius.circular(20),
       borderSide: BorderSide(color: borderColor),
       boxShadow: shadows,
       pauseOnHover: true,
@@ -154,11 +130,11 @@ class InAppNotificationController with AppLogger {
       dragToClose: true,
       closeOnClick: true,
       closeButtonShowType: CloseButtonShowType.none,
-      animationDuration: const Duration(milliseconds: 420),
+      animationDuration: const Duration(milliseconds: 380),
       animationBuilder: (context, animation, alignment, child) {
         return SlideTransition(
           position: Tween<Offset>(
-            begin: const Offset(0, 1.5),
+            begin: const Offset(0, -1.5),
             end: Offset.zero,
           ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutBack)),
           child: FadeTransition(
