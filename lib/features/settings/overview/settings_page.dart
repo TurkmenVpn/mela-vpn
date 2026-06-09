@@ -7,13 +7,11 @@ import 'package:melavpn/core/app_info/app_info_provider.dart';
 import 'package:melavpn/core/device_id/device_id_provider.dart';
 import 'package:melavpn/core/localization/translations.dart';
 import 'package:melavpn/core/model/failures.dart';
-import 'package:melavpn/core/preferences/general_preferences.dart';
 import 'package:melavpn/core/router/dialog/dialog_notifier.dart';
 import 'package:melavpn/core/router/go_router/helper/active_breakpoint_notifier.dart';
 import 'package:melavpn/core/theme/mela_colors.dart';
 import 'package:melavpn/features/app_update/notifier/app_update_notifier.dart';
 import 'package:melavpn/features/app_update/notifier/app_update_state.dart';
-import 'package:melavpn/features/profile/notifier/active_profile_notifier.dart';
 import 'package:melavpn/features/settings/notifier/config_option/config_option_notifier.dart';
 import 'package:melavpn/features/settings/notifier/reset_tunnel/reset_tunnel_notifier.dart';
 import 'package:melavpn/core/notification/in_app_notification_controller.dart';
@@ -198,14 +196,6 @@ class SettingsPage extends HookConsumerWidget {
           const Gap(12),
           _SettingsGroup(
             children: [
-              if (ref.watch(hasAnyProfileProvider).value ?? false)
-                SettingsSection(
-                  title: t.pages.settings.chain.title,
-                  icon: Icons.account_tree_rounded,
-                  iconColor: MelaColors.secondary,
-                  subtitle: Text(t.pages.settings.chain.subtitle, style: TextStyle(color: MelaColors.textHint(context), fontSize: 12)),
-                  namedLocation: context.namedLocation('chainOptions'),
-                ),
               SettingsSection(
                 title: t.pages.settings.dns.title,
                 icon: Icons.dns_rounded,
@@ -221,18 +211,10 @@ class SettingsPage extends HookConsumerWidget {
             ],
           ).animate().fadeIn(delay: 60.ms, duration: 300.ms).slideY(begin: 0.06, end: 0),
           const Gap(12),
-          _SettingsGroup(
-            children: [
-              SettingsSection(
-                title: t.pages.settings.tlsTricks.title,
-                icon: Icons.security_rounded,
-                iconColor: const Color(0xFFF59E0B),
-                namedLocation: context.namedLocation('tlsTricks'),
-              ),
-              if (PlatformUtils.isIOS)
-                _ResetTunnelTile(t: t, ref: ref),
-            ],
-          ).animate().fadeIn(delay: 120.ms, duration: 300.ms).slideY(begin: 0.06, end: 0),
+          if (PlatformUtils.isIOS)
+            _SettingsGroup(
+              children: [_ResetTunnelTile(t: t, ref: ref)],
+            ).animate().fadeIn(delay: 120.ms, duration: 300.ms).slideY(begin: 0.06, end: 0),
           if (Breakpoint(context).isMobile()) ...[
             const Gap(12),
             _SettingsGroup(

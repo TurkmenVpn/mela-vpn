@@ -194,9 +194,23 @@ class ProfileParser {
     required Ref ref,
     int parallelism = 4,
   }) async {
-    final content = await File(tempFilePath).readAsString();
-    final lines = content.split('\n');
+    var content = await File(tempFilePath).readAsString();
 
+    // If the entire content looks like base64, decode it first.
+    // This handles classic V2Ray/Xray subscriptions that return a base64-encoded
+    // list of proxy URIs.
+    final trimmed = content.trim();
+    if (_looksLikeBase64(trimmed)) {
+      final decoded = safeDecodeBase64(trimmed);
+      // Accept the decoded form only if it actually contains proxy URIs or
+      // recognizable config text (avoid corrupting JSON/YAML accidentally).
+      if (decoded != trimmed && _containsProxyUris(decoded)) {
+        content = decoded;
+        await File(tempFilePath).writeAsString(content);
+      }
+    }
+
+    final lines = content.split('\n');
     final results = List<String?>.filled(lines.length, null);
 
     int index = 0;
@@ -210,9 +224,10 @@ class ProfileParser {
 
         final line = lines[currentIndex];
 
-        // Non-URL
-        if (!line.startsWith('http://') && !line.startsWith('https://')) {
-          results[currentIndex] = line.trim();
+        // Non-URL: keep the line as-is (trimRight only removes trailing CR/space
+        // without stripping leading whitespace needed by YAML/indented formats).
+        if (!line.trimLeft().startsWith('http://') && !line.trimLeft().startsWith('https://')) {
+          results[currentIndex] = line.trimRight();
           continue;
         }
 
@@ -220,12 +235,9 @@ class ProfileParser {
           final tmpPath = '$tempFilePath.$currentIndex';
 
           await httpClient.download(
-            line,
+            line.trim(),
             tmpPath,
             cancelToken: cancelToken,
-            userAgent: ref.read(ConfigOptions.useXrayCoreWhenPossible)
-                ? httpClient.userAgent.replaceAll('MelaVPNNext', 'MelaVPNNextX')
-                : null,
           );
 
           results[currentIndex] = (await File(tmpPath).readAsString()).trim();
@@ -246,6 +258,18 @@ class ProfileParser {
       await File(tempFilePath).writeAsString(newContent);
     }
   }
+
+  static final _base64Chars = RegExp(r'^[A-Za-z0-9+/=\s]+$');
+  static final _proxySchemes = RegExp(r'(vless|vmess|ss|trojan|hysteria2?|hy2?|tuic|wg|ssh|shadowtls|mieru|warp)://', caseSensitive: false);
+
+  static bool _looksLikeBase64(String s) {
+    // Must be reasonably long, single-block, and contain only base64 characters.
+    if (s.length < 20) return false;
+    if (s.contains('{') || s.contains(':') || s.contains('\n')) return false;
+    return _base64Chars.hasMatch(s);
+  }
+
+  static bool _containsProxyUris(String s) => _proxySchemes.hasMatch(s);
 
   static Either<ProfileFailure, Map<String, dynamic>> populateHeaders({
     required String content,

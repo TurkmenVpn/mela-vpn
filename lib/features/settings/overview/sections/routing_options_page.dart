@@ -68,30 +68,30 @@ class RoutingOptionsPage extends HookConsumerWidget {
     ];
 
     return Scaffold(
-      backgroundColor: MelaColors.bgDeep,
+      backgroundColor: MelaColors.bg(context),
       appBar: AppBar(
-        backgroundColor: MelaColors.bgDeep,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: Container(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(7),
             decoration: BoxDecoration(
-              color: MelaColors.bgCard.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: MelaColors.border, width: 1),
+              color: MelaColors.card(context),
+              shape: BoxShape.circle,
+              border: Border.all(color: MelaColors.brd(context), width: 1),
             ),
-            child: const Icon(Icons.arrow_back_rounded, color: MelaColors.textSecondary, size: 20),
+            child: Icon(Icons.arrow_back_ios_new_rounded, color: MelaColors.textSec(context), size: 15),
           ),
           onPressed: () => context.pop(),
         ),
         title: Text(
           t.pages.settings.routing.title,
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.w800,
             color: MelaColors.textPrim(context),
-            letterSpacing: 0.5,
+            letterSpacing: 0.2,
           ),
         ),
         centerTitle: true,

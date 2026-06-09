@@ -1,4 +1,5 @@
 import 'package:dartx/dartx.dart';
+import 'package:melavpn/core/app_info/app_info_provider.dart';
 import 'package:melavpn/core/localization/translations.dart';
 import 'package:melavpn/core/notification/in_app_notification_controller.dart';
 import 'package:melavpn/core/preferences/general_preferences.dart';
@@ -43,7 +44,26 @@ class ForegroundProfilesUpdateNotifier extends _$ForegroundProfilesUpdateNotifie
     } else {
       loggy.debug("intro in process, skipping");
     }
+
+    _checkVersionChange();
     return const Stream.empty();
+  }
+
+  Future<void> _checkVersionChange() async {
+    try {
+      final appInfo = await ref.read(appInfoProvider.future);
+      final prefs = ref.read(sharedPreferencesProvider).requireValue;
+      const versionKey = 'last_known_app_version';
+      final lastVersion = prefs.getString(versionKey);
+      await prefs.setString(versionKey, appInfo.version);
+      if (lastVersion != null && lastVersion != appInfo.version) {
+        loggy.info("app updated $lastVersion → ${appInfo.version}, forcing subscription refresh");
+        _forceNextRun = true;
+        await _scheduler?.trigger();
+      }
+    } catch (e) {
+      loggy.error("version check failed", e);
+    }
   }
 
   NeatPeriodicTaskScheduler? _scheduler;

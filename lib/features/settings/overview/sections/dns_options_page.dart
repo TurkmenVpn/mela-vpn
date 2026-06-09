@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:melavpn/core/localization/translations.dart';
+import 'package:melavpn/core/theme/mela_colors.dart';
 import 'package:melavpn/features/settings/data/config_option_repository.dart';
 import 'package:melavpn/features/settings/widget/preference_tile.dart';
 import 'package:melavpn/singbox/model/singbox_config_enum.dart';
@@ -11,8 +13,36 @@ class DnsOptionsPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
     return Scaffold(
-      appBar: AppBar(title: Text(t.pages.settings.dns.title)),
+      backgroundColor: MelaColors.bg(context),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(7),
+            decoration: BoxDecoration(
+              color: MelaColors.card(context),
+              shape: BoxShape.circle,
+              border: Border.all(color: MelaColors.brd(context), width: 1),
+            ),
+            child: Icon(Icons.arrow_back_ios_new_rounded, color: MelaColors.textSec(context), size: 15),
+          ),
+          onPressed: () => context.pop(),
+        ),
+        title: Text(
+          t.pages.settings.dns.title,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: MelaColors.textPrim(context),
+            letterSpacing: 0.2,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: ListView(
+        padding: const EdgeInsets.all(16),
         children: [
           ValuePreferenceWidget(
             value: ref.watch(ConfigOptions.remoteDnsAddress),

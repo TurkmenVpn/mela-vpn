@@ -1,9 +1,11 @@
 import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:melavpn/core/haptic/haptic_service.dart';
 import 'package:melavpn/core/localization/translations.dart';
 import 'package:melavpn/core/preferences/general_preferences.dart';
 import 'package:melavpn/core/router/dialog/dialog_notifier.dart';
+import 'package:melavpn/core/theme/mela_colors.dart';
 import 'package:melavpn/features/auto_start/notifier/auto_start_notifier.dart';
 import 'package:melavpn/features/common/general_pref_tiles.dart';
 import 'package:melavpn/features/log/model/log_level.dart';
@@ -20,8 +22,36 @@ class GeneralPage extends HookConsumerWidget {
     final t = ref.watch(translationsProvider).requireValue;
 
     return Scaffold(
-      appBar: AppBar(title: Text(t.pages.settings.general.title)),
+      backgroundColor: MelaColors.bg(context),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(7),
+            decoration: BoxDecoration(
+              color: MelaColors.card(context),
+              shape: BoxShape.circle,
+              border: Border.all(color: MelaColors.brd(context), width: 1),
+            ),
+            child: Icon(Icons.arrow_back_ios_new_rounded, color: MelaColors.textSec(context), size: 15),
+          ),
+          onPressed: () => context.pop(),
+        ),
+        title: Text(
+          t.pages.settings.general.title,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: MelaColors.textPrim(context),
+            letterSpacing: 0.2,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: ListView(
+        padding: const EdgeInsets.all(16),
         children: [
           const LocalePrefTile(),
           const ThemeModePrefTile(),
@@ -71,18 +101,6 @@ class GeneralPage extends HookConsumerWidget {
             value: !ref.watch(Preferences.disableMemoryLimit),
             onChanged: (value) async => await ref.read(Preferences.disableMemoryLimit.notifier).update(!value),
           ),
-          SwitchListTile.adaptive(
-            title: Text(t.pages.settings.general.debugMode),
-            secondary: const Icon(Icons.bug_report_rounded),
-            value: ref.watch(debugModeNotifierProvider),
-            onChanged: (value) async {
-              if (value)
-                await ref
-                    .read(dialogNotifierProvider.notifier)
-                    .showOk(t.pages.settings.general.debugMode, t.pages.settings.general.debugModeMsg);
-              await ref.read(debugModeNotifierProvider.notifier).update(value);
-            },
-          ),
           ChoicePreferenceWidget(
             selected: ref.watch(ConfigOptions.logLevel),
             preferences: ref.watch(ConfigOptions.logLevel.notifier),
@@ -116,22 +134,6 @@ class GeneralPage extends HookConsumerWidget {
                   if (value == null) return;
                   await ref.read(ConfigOptions.urlTestInterval.notifier).update(Duration(minutes: value.toInt()));
                 }),
-          ),
-          ValuePreferenceWidget(
-            value: ref.watch(ConfigOptions.clashApiPort),
-            preferences: ref.watch(ConfigOptions.clashApiPort.notifier),
-            title: t.pages.settings.general.clashApiPort,
-            icon: Icons.api_rounded,
-            validateInput: isPort,
-            digitsOnly: true,
-            inputToValue: int.tryParse,
-          ),
-          SwitchListTile.adaptive(
-            title: Text(t.pages.settings.general.useXrayCoreWhenPossible),
-            subtitle: Text(t.pages.settings.general.useXrayCoreWhenPossibleMsg),
-            secondary: const Icon(Icons.extension_rounded),
-            value: ref.watch(ConfigOptions.useXrayCoreWhenPossible),
-            onChanged: ref.read(ConfigOptions.useXrayCoreWhenPossible.notifier).update,
           ),
         ],
       ),
