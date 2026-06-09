@@ -174,12 +174,25 @@ Future<void> _runOfflinePing(List<ProfileOutbound> items, String profileId, Widg
 
 String? _decodeAnnounce(String? raw) {
   if (raw == null || raw.isEmpty) return null;
-  try {
-    final decoded = utf8.decode(base64.decode(base64.normalize(raw)));
-    return decoded.trim().isEmpty ? null : decoded.trim();
-  } catch (_) {
-    return raw.trim().isEmpty ? null : raw.trim();
+  final str = raw.trim();
+  // формат: "base64:<данные>"
+  if (str.startsWith('base64:')) {
+    try {
+      final b64 = str.substring(7);
+      final decoded = utf8.decode(base64.decode(base64.normalize(b64)));
+      return decoded.trim().isEmpty ? null : decoded.trim();
+    } catch (_) {}
   }
+  // попытка декодировать как чистый base64 (без префикса)
+  try {
+    final decoded = utf8.decode(base64.decode(base64.normalize(str)));
+    // проверяем что результат читаемый текст
+    if (decoded.codeUnits.every((c) => c >= 0x20 || c == 0x09 || c == 0x0A || c == 0x0D)) {
+      return decoded.trim().isEmpty ? null : decoded.trim();
+    }
+  } catch (_) {}
+  // plain text
+  return str.isEmpty ? null : str;
 }
 
 class ProfileTile extends HookConsumerWidget {
@@ -335,7 +348,8 @@ class _MainProfileCard extends HookConsumerWidget {
       _ => null,
     };
 
-    final announceRaw = profile.populatedHeaders?['profile-announce'] as String?;
+    final announceRaw = (profile.populatedHeaders?['profile-announce']
+        ?? profile.populatedHeaders?['announce']) as String?;
     final announce = _decodeAnnounce(announceRaw);
 
     return Container(
