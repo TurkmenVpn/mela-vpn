@@ -4,8 +4,10 @@ import 'package:melavpn/core/localization/translations.dart';
 import 'package:melavpn/core/notification/in_app_notification_controller.dart';
 import 'package:melavpn/core/preferences/general_preferences.dart';
 import 'package:melavpn/core/preferences/preferences_provider.dart';
+import 'package:melavpn/features/connection/notifier/connection_notifier.dart';
 import 'package:melavpn/features/profile/data/profile_data_providers.dart';
 import 'package:melavpn/features/profile/model/profile_entity.dart';
+import 'package:melavpn/features/profile/notifier/active_profile_notifier.dart';
 import 'package:melavpn/utils/custom_loggers.dart';
 import 'package:meta/meta.dart';
 import 'package:neat_periodic_task/neat_periodic_task.dart';
@@ -108,7 +110,7 @@ class ForegroundProfilesUpdateNotifier extends _$ForegroundProfilesUpdateNotifie
         final updateInterval = profile.options?.updateInterval ?? const Duration(hours: 24);
         if (force || updateInterval <= DateTime.now().difference(profile.lastUpdate)) {
           final t = ref.read(translationsProvider).requireValue;
-          await ref
+          final result = await ref
               .read(profileRepositoryProvider)
               .requireValue
               .upsertRemote(profile.url)
@@ -127,6 +129,15 @@ class ForegroundProfilesUpdateNotifier extends _$ForegroundProfilesUpdateNotifie
                 state = AsyncData((name: profile.name, success: true));
               })
               .run();
+
+          // Reconnect with new keys if this is the active profile
+          if (result.isRight()) {
+            final active = await ref.read(activeProfileProvider.future);
+            if (active != null && active.id == profile.id) {
+              loggy.debug("active profile updated, reconnecting with new keys");
+              await ref.read(connectionNotifierProvider.notifier).reconnect(profile);
+            }
+          }
         } else {
           loggy.debug(
             "skipping profile [${profile.id}] update. last successful update: [${profile.lastUpdate}] - interval: [${profile.options?.updateInterval}]",
