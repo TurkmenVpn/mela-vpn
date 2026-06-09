@@ -8,6 +8,7 @@ import 'package:melavpn/features/connection/notifier/connection_notifier.dart';
 import 'package:melavpn/features/profile/data/profile_data_providers.dart';
 import 'package:melavpn/features/profile/model/profile_entity.dart';
 import 'package:melavpn/features/profile/notifier/active_profile_notifier.dart';
+import 'package:melavpn/features/profile/notifier/profile_outbounds_notifier.dart';
 import 'package:melavpn/utils/custom_loggers.dart';
 import 'package:meta/meta.dart';
 import 'package:neat_periodic_task/neat_periodic_task.dart';
@@ -132,6 +133,7 @@ class ForegroundProfilesUpdateNotifier extends _$ForegroundProfilesUpdateNotifie
 
           // Reconnect with new keys if this is the active profile
           if (result.isRight()) {
+            ref.invalidate(profileOutboundsProvider(profile.id));
             final active = await ref.read(activeProfileProvider.future);
             if (active != null && active.id == profile.id) {
               loggy.debug("active profile updated, reconnecting with new keys");

@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:melavpn/core/haptic/haptic_service.dart';
 import 'package:melavpn/core/http_client/http_client_provider.dart';
 import 'package:melavpn/core/localization/translations.dart';
@@ -16,10 +17,10 @@ import 'package:melavpn/features/profile/data/profile_repository.dart';
 import 'package:melavpn/features/profile/model/profile_entity.dart';
 import 'package:melavpn/features/profile/model/profile_failure.dart';
 import 'package:melavpn/features/profile/notifier/active_profile_notifier.dart';
+import 'package:melavpn/features/profile/notifier/profile_outbounds_notifier.dart';
 import 'package:melavpn/features/settings/data/config_option_repository.dart';
 import 'package:melavpn/utils/riverpod_utils.dart';
 import 'package:melavpn/utils/utils.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'profile_notifier.g.dart';
@@ -166,6 +167,7 @@ class UpdateProfileNotifier extends _$UpdateProfileNotifier with AppLogger {
             (_) async {
               loggy.info('successfully updated profile');
 
+              ref.invalidate(profileOutboundsProvider(profile.id));
               await ref.read(activeProfileProvider.future).then((active) async {
                 if (active != null && active.id == profile.id) {
                   await ref.read(connectionNotifierProvider.notifier).reconnect(active);
