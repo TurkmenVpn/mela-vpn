@@ -52,7 +52,12 @@ class ProfilesModal extends HookConsumerWidget {
                       Expanded(
                         child: FilledButton.icon(
                           label: Text(t.common.sort, maxLines: 1, overflow: TextOverflow.ellipsis),
-                          icon: const Icon(Icons.sort_rounded),
+                          icon: const Icon(Icons.sort_rounded, size: 15),
+                          style: FilledButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            textStyle: const TextStyle(fontSize: 12),
+                            visualDensity: VisualDensity.compact,
+                          ),
                           onPressed: () => ref.read(dialogNotifierProvider.notifier).showSortProfiles(),
                         ),
                       ),
@@ -60,7 +65,12 @@ class ProfilesModal extends HookConsumerWidget {
                       Expanded(
                         child: FilledButton.icon(
                           label: Text(t.pages.profiles.updateSubscriptions, maxLines: 1, overflow: TextOverflow.ellipsis),
-                          icon: const Icon(Icons.update_rounded),
+                          icon: const Icon(Icons.update_rounded, size: 15),
+                          style: FilledButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            textStyle: const TextStyle(fontSize: 12),
+                            visualDensity: VisualDensity.compact,
+                          ),
                           onPressed: () => ref.read(foregroundProfilesUpdateNotifierProvider.notifier).trigger(),
                         ),
                       ),
