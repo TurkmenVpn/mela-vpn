@@ -697,6 +697,8 @@ class _UpdateInfo extends StatelessWidget {
             style: TextStyle(color: MelaColors.textHint(context), fontSize: 11),
           ),
         ),
+        const Gap(4),
+        const _TwoIpButton(),
         if (webUrl != null) ...[
           const Gap(4),
           _LinkIconButton.web(url: webUrl),
@@ -734,6 +736,37 @@ class _LinkIconButton extends StatelessWidget {
         child: isTg
             ? FaIcon(FontAwesomeIcons.telegram, size: 12, color: color)
             : Icon(Icons.language_rounded, size: 13, color: color),
+      ),
+    );
+  }
+}
+
+class _TwoIpButton extends StatelessWidget {
+  const _TwoIpButton();
+
+  @override
+  Widget build(BuildContext context) {
+    const color = Color(0xFF6C8EBF);
+    return GestureDetector(
+      onTap: () => launchUrl(Uri.parse('https://2ip.ru'), mode: LaunchMode.externalApplication),
+      child: Container(
+        height: 24,
+        padding: const EdgeInsets.symmetric(horizontal: 7),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: color.withValues(alpha: 0.28), width: 1),
+        ),
+        alignment: Alignment.center,
+        child: const Text(
+          '2IP',
+          style: TextStyle(
+            color: color,
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.3,
+          ),
+        ),
       ),
     );
   }
