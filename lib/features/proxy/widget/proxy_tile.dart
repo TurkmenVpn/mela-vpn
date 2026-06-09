@@ -4,6 +4,7 @@ import 'package:melavpn/features/proxy/active/ip_widget.dart';
 import 'package:melavpn/gen/fonts.gen.dart';
 import 'package:melavpn/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:melavpn/utils/custom_loggers.dart';
+import 'package:melavpn/utils/number_formatters.dart';
 import 'package:melavpn/utils/platform_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -53,7 +54,11 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
               style: TextStyle(color: delayColor(context, proxy.urlTestDelay)),
             ),
 
-          if (proxy.download > 0) Text("⬩", style: Theme.of(context).textTheme.bodySmall),
+          if (proxy.download > 0 || proxy.upload > 0)
+            Text(
+              '↓${proxy.download.toInt().size()}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
+            ),
         ],
       ),
 
