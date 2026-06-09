@@ -85,16 +85,13 @@ class RoutingOptionsPage extends HookConsumerWidget {
           ),
           onPressed: () => context.pop(),
         ),
-        title: ShaderMask(
-          shaderCallback: (b) => MelaColors.primaryGradient.createShader(b),
-          child: Text(
-            t.pages.settings.routing.title,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-              letterSpacing: 0.5,
-            ),
+        title: Text(
+          t.pages.settings.routing.title,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            color: MelaColors.textPrim(context),
+            letterSpacing: 0.5,
           ),
         ),
         centerTitle: true,

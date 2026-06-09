@@ -29,16 +29,13 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: ShaderMask(
-          shaderCallback: (bounds) => MelaColors.primaryGradient.createShader(bounds),
-          child: const Text(
-            'Серверы',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-              letterSpacing: 0.2,
-            ),
+        title: Text(
+          'Серверы',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: MelaColors.textPrim(context),
+            letterSpacing: 0.2,
           ),
         ),
         centerTitle: true,

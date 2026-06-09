@@ -203,7 +203,9 @@ class _GlowButton extends StatelessWidget {
     final ring1Color = color.withValues(alpha: 0.08);
     final ring2Color = color.withValues(alpha: 0.14);
 
-    return SizedBox(
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: SizedBox(
       width: outerSize,
       height: outerSize,
       child: Stack(
@@ -291,6 +293,7 @@ class _GlowButton extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

@@ -79,16 +79,13 @@ class SettingsPage extends HookConsumerWidget {
           ),
           onPressed: () => context.goNamed('home'),
         ),
-        title: ShaderMask(
-          shaderCallback: (bounds) => MelaColors.primaryGradient.createShader(bounds),
-          child: const Text(
-            'Настройки',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-              letterSpacing: 0.2,
-            ),
+        title: Text(
+          'Настройки',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: MelaColors.textPrim(context),
+            letterSpacing: 0.2,
           ),
         ),
         centerTitle: true,

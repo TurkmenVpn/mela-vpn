@@ -63,15 +63,12 @@ class AddProfileActionSheet extends HookConsumerWidget {
           const Gap(16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: ShaderMask(
-              shaderCallback: (b) => MelaColors.primaryGradient.createShader(b),
-              child: const Text(
-                'Mela VPN',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                ),
+            child: Text(
+              'Mela VPN',
+              style: TextStyle(
+                color: MelaColors.textPrim(context),
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
