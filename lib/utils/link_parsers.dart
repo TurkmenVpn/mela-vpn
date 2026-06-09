@@ -81,7 +81,9 @@ abstract class LinkParser {
           final url = isCrypt ? (await _decryptChacha20(rawUrl) ?? rawUrl) : rawUrl;
           return (url: url, name: queryParams['name'] ?? '');
         } else {
-          return (url: uri.path.substring(1) + (uri.hasQuery ? "?${uri.query}" : ""), name: uri.fragment);
+          final url = uri.path.substring(1) + (uri.hasQuery ? "?${uri.query}" : "");
+          if (!url.startsWith('https://') && !url.startsWith('http://')) return null;
+          return (url: url, name: uri.fragment);
         }
       case 'v2ray' || 'v2rayn' || 'v2rayng' || 'clash' || 'clashmeta' || 'sing-box':
         return queryParams.containsKey('url') ? (url: queryParams['url']!, name: queryParams['name'] ?? '') : null;

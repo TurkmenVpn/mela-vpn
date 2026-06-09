@@ -126,64 +126,67 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
   @override
   TaskEither<ProfileFailure, Unit> upsertRemote(String url, {UserOverride? userOverride, CancelToken? cancelToken}) =>
       TaskEither.tryCatch(
-        () async => await _profileDataSource.getByUrl(url).then((profEntry) => profEntry?.toEntity()),
-        ProfileFailure.unexpected,
-      ).flatMap((profEntity) {
-        // if profile is null, generate id
-        final id = profEntity?.id ?? const Uuid().v4();
-        final file = _profilePathResolver.file(id);
-        final tempFile = _profilePathResolver.tempFile(id);
-        try {
-          if (profEntity != null && profEntity is RemoteProfileEntity) {
-            // Update
-            if (userOverride != null) {
-              profEntity = profEntity.copyWith(userOverride: userOverride);
+        () async {
+          final profEntity = await _profileDataSource.getByUrl(url).then((e) => e?.toEntity());
+          final id = profEntity?.id ?? const Uuid().v4();
+          final file = _profilePathResolver.file(id);
+          final tempFile = _profilePathResolver.tempFile(id);
+          try {
+            final TaskEither<ProfileFailure, Unit> task;
+            if (profEntity != null && profEntity is RemoteProfileEntity) {
+              var rp = profEntity;
+              if (userOverride != null) rp = rp.copyWith(userOverride: userOverride);
+              task = _profileParser
+                  .updateRemote(rp: rp, tempFilePath: tempFile.path, cancelToken: cancelToken)
+                  .flatMap(
+                    (updated) => validateConfig(
+                      file.path,
+                      tempFile.path,
+                      ProfileParser.profileOverrideHelper(profile: updated),
+                      false,
+                    ).flatMap(
+                      (_) => TaskEither.tryCatch(
+                        () async {
+                          await _profileDataSource.edit(id, updated);
+                          return unit;
+                        },
+                        ProfileFailure.unexpected,
+                      ),
+                    ),
+                  );
+            } else {
+              task = _profileParser
+                  .addRemote(
+                    id: id,
+                    url: url,
+                    tempFilePath: tempFile.path,
+                    userOverride: userOverride,
+                    cancelToken: cancelToken,
+                  )
+                  .flatMap(
+                    (added) => validateConfig(
+                      file.path,
+                      tempFile.path,
+                      ProfileParser.profileOverrideHelper(profile: added),
+                      false,
+                    ).flatMap(
+                      (_) => TaskEither.tryCatch(
+                        () async {
+                          await _profileDataSource.insert(added);
+                          return unit;
+                        },
+                        ProfileFailure.unexpected,
+                      ),
+                    ),
+                  );
             }
-            return _profileParser
-                .updateRemote(rp: profEntity, tempFilePath: tempFile.path, cancelToken: cancelToken)
-                .flatMap(
-                  (profEntity) =>
-                      validateConfig(
-                        file.path,
-                        tempFile.path,
-                        ProfileParser.profileOverrideHelper(profile: profEntity),
-                        false,
-                      ).flatMap(
-                        (unit) => TaskEither.tryCatch(() async {
-                          await _profileDataSource.edit(id, profEntity);
-                          return unit;
-                        }, ProfileFailure.unexpected),
-                      ),
-                );
-          } else {
-            // Add
-            return _profileParser
-                .addRemote(
-                  id: id,
-                  url: url,
-                  tempFilePath: tempFile.path,
-                  userOverride: userOverride,
-                  cancelToken: cancelToken,
-                )
-                .flatMap(
-                  (profEntity) =>
-                      validateConfig(
-                        file.path,
-                        tempFile.path,
-                        ProfileParser.profileOverrideHelper(profile: profEntity),
-                        false,
-                      ).flatMap(
-                        (unit) => TaskEither.tryCatch(() async {
-                          await _profileDataSource.insert(profEntity);
-                          return unit;
-                        }, ProfileFailure.unexpected),
-                      ),
-                );
+            return (await task.run()).getOrElse((l) => throw l);
+          } finally {
+            if (tempFile.existsSync()) tempFile.deleteSync();
           }
-        } finally {
-          if (tempFile.existsSync()) tempFile.deleteSync();
-        }
-      });
+        },
+        (err, st) => err is ProfileFailure ? err : ProfileFailure.unexpected(err, st),
+      );
 
   @override
   TaskEither<ProfileFailure, Unit> addLocal(String content, {UserOverride? userOverride}) =>
@@ -218,44 +221,47 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
   @override
   TaskEither<ProfileFailure, Unit> offlineUpdate(ProfileEntity profile, String nContent) =>
       TaskEither.tryCatch(
-        () async => await _profileDataSource.getById(profile.id).then((profEntry) => profEntry?.toEntity()),
-        ProfileFailure.unexpected,
-      ).flatMap((oProfile) {
-        if (oProfile == null || oProfile.runtimeType != profile.runtimeType) throw const ProfileFailure.notFound();
-        if (profile.userOverride == null) loggy.warning('Updaing profile content with "userOverride" == null');
-        final id = oProfile.id;
-        final file = _profilePathResolver.file(id);
-        final tempFile = _profilePathResolver.tempFile(id);
-        try {
-          return TaskEither.tryCatch(
-            () async => await tempFile.writeAsString(nContent),
-            ProfileFailure.unexpected,
-          ).flatMap(
-            (_) =>
-                TaskEither.fromEither(
-                  _profileParser.offlineUpdate(
-                    profile: oProfile.copyWith(userOverride: profile.userOverride),
-                    tempFilePath: tempFile.path,
-                  ),
-                ).flatMap(
-                  (profEntity) =>
-                      validateConfig(
-                        file.path,
-                        tempFile.path,
-                        ProfileParser.profileOverrideHelper(profile: profEntity),
-                        false,
-                      ).flatMap(
-                        (unit) => TaskEither.tryCatch(() async {
-                          await _profileDataSource.edit(id, profEntity);
-                          return unit;
-                        }, ProfileFailure.unexpected),
-                      ),
+        () async {
+          final oProfile = await _profileDataSource.getById(profile.id).then((e) => e?.toEntity());
+          if (oProfile == null || oProfile.runtimeType != profile.runtimeType) throw const ProfileFailure.notFound();
+          if (profile.userOverride == null) loggy.warning('Updaing profile content with "userOverride" == null');
+          final id = oProfile.id;
+          final file = _profilePathResolver.file(id);
+          final tempFile = _profilePathResolver.tempFile(id);
+          try {
+            final task = TaskEither.tryCatch(
+              () async => await tempFile.writeAsString(nContent),
+              ProfileFailure.unexpected,
+            ).flatMap(
+              (_) => TaskEither.fromEither(
+                _profileParser.offlineUpdate(
+                  profile: oProfile.copyWith(userOverride: profile.userOverride),
+                  tempFilePath: tempFile.path,
                 ),
-          );
-        } finally {
-          if (tempFile.existsSync()) tempFile.deleteSync();
-        }
-      });
+              ).flatMap(
+                (profEntity) => validateConfig(
+                  file.path,
+                  tempFile.path,
+                  ProfileParser.profileOverrideHelper(profile: profEntity),
+                  false,
+                ).flatMap(
+                  (_) => TaskEither.tryCatch(
+                    () async {
+                      await _profileDataSource.edit(id, profEntity);
+                      return unit;
+                    },
+                    ProfileFailure.unexpected,
+                  ),
+                ),
+              ),
+            );
+            return (await task.run()).getOrElse((l) => throw l);
+          } finally {
+            if (tempFile.existsSync()) tempFile.deleteSync();
+          }
+        },
+        (err, st) => err is ProfileFailure ? err : ProfileFailure.unexpected(err, st),
+      );
 
   @override
   TaskEither<ProfileFailure, Unit> validateConfig(String path, String tempPath, String? profileOverride, bool debug) =>

@@ -169,8 +169,8 @@ class ProfileParser {
             if (hwid != null) 'X-HWID': hwid,
           },
         )
-        .catchError((err) {
-          if (CancelToken.isCancel(err as DioException)) {
+        .catchError((Object err) {
+          if (err is DioException && CancelToken.isCancel(err)) {
             throw const ProfileFailure.cancelByUser('HTTP request for getting profile content canceled by user.');
           }
           throw err;
@@ -197,14 +197,15 @@ class ProfileParser {
     var content = await File(tempFilePath).readAsString();
 
     // If the entire content looks like base64, decode it first.
-    // This handles classic V2Ray/Xray subscriptions that return a base64-encoded
-    // list of proxy URIs.
+    // Classic V2Ray/Xray subscriptions return base64-encoded proxy URI lists,
+    // often in MIME format with \r\n line breaks every 76 chars.
     final trimmed = content.trim();
     if (_looksLikeBase64(trimmed)) {
-      final decoded = safeDecodeBase64(trimmed);
-      // Accept the decoded form only if it actually contains proxy URIs or
-      // recognizable config text (avoid corrupting JSON/YAML accidentally).
-      if (decoded != trimmed && _containsProxyUris(decoded)) {
+      // Strip all whitespace before decoding — dart:convert base64Decode
+      // rejects any whitespace including MIME-style line breaks.
+      final noWs = trimmed.replaceAll(RegExp(r'\s'), '');
+      final decoded = safeDecodeBase64(noWs);
+      if (decoded != noWs && _containsProxyUris(decoded)) {
         content = decoded;
         await File(tempFilePath).writeAsString(content);
       }
@@ -231,9 +232,8 @@ class ProfileParser {
           continue;
         }
 
+        final tmpPath = '$tempFilePath.$currentIndex';
         try {
-          final tmpPath = '$tempFilePath.$currentIndex';
-
           await httpClient.download(
             line.trim(),
             tmpPath,
@@ -242,10 +242,11 @@ class ProfileParser {
 
           results[currentIndex] = (await File(tmpPath).readAsString()).trim();
         } catch (err) {
-          if (err is DioException && CancelToken.isCancel(err)) {
-            return;
-          }
           results[currentIndex] = '';
+          if (err is DioException && CancelToken.isCancel(err)) return;
+        } finally {
+          final tmp = File(tmpPath);
+          if (tmp.existsSync()) tmp.deleteSync();
         }
       }
     }
@@ -254,19 +255,22 @@ class ProfileParser {
     await Future.wait(List.generate(parallelism, (_) => worker()));
 
     if (results.any((e) => e != null)) {
-      final newContent = results.join("\n");
+      final newContent = results.map((e) => e ?? '').join("\n");
       await File(tempFilePath).writeAsString(newContent);
     }
   }
 
-  static final _base64Chars = RegExp(r'^[A-Za-z0-9+/=\s]+$');
+  static final _base64Chars = RegExp(r'^[A-Za-z0-9+/=]+$');
   static final _proxySchemes = RegExp(r'(vless|vmess|ss|trojan|hysteria2?|hy2?|tuic|wg|ssh|shadowtls|mieru|warp)://', caseSensitive: false);
 
   static bool _looksLikeBase64(String s) {
-    // Must be reasonably long, single-block, and contain only base64 characters.
     if (s.length < 20) return false;
-    if (s.contains('{') || s.contains(':') || s.contains('\n')) return false;
-    return _base64Chars.hasMatch(s);
+    // JSON/YAML/proxy URIs contain these characters; base64 never does
+    if (s.contains('{') || s.contains(':')) return false;
+    // Strip whitespace: MIME base64 adds \r\n every 76 chars
+    final noWs = s.replaceAll(RegExp(r'\s'), '');
+    if (noWs.length < 20) return false;
+    return _base64Chars.hasMatch(noWs);
   }
 
   static bool _containsProxyUris(String s) => _proxySchemes.hasMatch(s);
@@ -317,7 +321,12 @@ class ProfileParser {
 
   static SubscriptionInfo? _parseSubscriptionInfo(String subInfoStr) {
     final values = subInfoStr.split(';');
-    final map = {for (final v in values) v.split('=').first.trim(): num.tryParse(v.split('=').second.trim())?.toInt()};
+    final map = <String, int?>{};
+    for (final v in values) {
+      final eqIdx = v.indexOf('=');
+      if (eqIdx < 0) continue;
+      map[v.substring(0, eqIdx).trim()] = num.tryParse(v.substring(eqIdx + 1).trim())?.toInt();
+    }
     if (map case {"upload": final upload?, "download": final download?, "total": final total, "expire": var expire}) {
       final total1 = (total == null || total == 0) ? infiniteTrafficThreshold + 1 : total;
       expire = (expire == null || expire == 0) ? infiniteTimeThreshold : expire;
@@ -342,7 +351,9 @@ class ProfileParser {
 
         if (headers['profile-title'] case final String titleHeader when name.isEmpty) {
           if (titleHeader.startsWith("base64:")) {
-            name = utf8.decode(base64.decode(titleHeader.replaceFirst("base64:", "")));
+            final encoded = titleHeader.replaceFirst("base64:", "").trim();
+            final decoded = safeDecodeBase64(encoded);
+            if (decoded != encoded) name = decoded;
           } else {
             name = titleHeader.trim();
           }
@@ -381,8 +392,10 @@ class ProfileParser {
         }
         if (headers['profile-update-interval'] case final String updateIntervalStr
             when options == null && !isAutoUpdateDisable) {
-          final updateInterval = Duration(hours: int.parse(updateIntervalStr));
-          options = ProfileOptions(updateInterval: updateInterval);
+          final hours = int.tryParse(updateIntervalStr);
+          if (hours != null && hours > 0) {
+            options = ProfileOptions(updateInterval: Duration(hours: hours));
+          }
         }
 
         SubscriptionInfo? subInfo;

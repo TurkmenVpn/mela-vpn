@@ -168,7 +168,7 @@ class UpdateProfileNotifier extends _$UpdateProfileNotifier with AppLogger {
 
               await ref.read(activeProfileProvider.future).then((active) async {
                 if (active != null && active.id == profile.id) {
-                  await ref.read(connectionNotifierProvider.notifier).reconnect(profile);
+                  await ref.read(connectionNotifierProvider.notifier).reconnect(active);
                 }
               });
               return unit;

@@ -135,7 +135,7 @@ class ForegroundProfilesUpdateNotifier extends _$ForegroundProfilesUpdateNotifie
             final active = await ref.read(activeProfileProvider.future);
             if (active != null && active.id == profile.id) {
               loggy.debug("active profile updated, reconnecting with new keys");
-              await ref.read(connectionNotifierProvider.notifier).reconnect(profile);
+              await ref.read(connectionNotifierProvider.notifier).reconnect(active);
             }
           }
         } else {

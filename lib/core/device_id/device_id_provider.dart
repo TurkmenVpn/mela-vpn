@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:melavpn/core/preferences/preferences_provider.dart';
 import 'package:melavpn/core/utils/preferences_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -15,7 +17,7 @@ String deviceId(DeviceIdRef ref) {
   final existing = prefs.getString(_kDeviceIdKey);
   if (existing != null && existing.isNotEmpty) return existing;
   final newId = const Uuid().v4();
-  prefs.setString(_kDeviceIdKey, newId);
+  unawaited(prefs.setString(_kDeviceIdKey, newId));
   return newId;
 }
 
