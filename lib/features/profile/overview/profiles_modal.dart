@@ -47,21 +47,22 @@ class ProfilesModal extends HookConsumerWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 8),
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    alignment: WrapAlignment.center,
-                    crossAxisAlignment: WrapCrossAlignment.center,
+                  child: Row(
                     children: [
-                      FilledButton.icon(
-                        label: Text(t.common.sort, maxLines: 1, overflow: TextOverflow.ellipsis),
-                        icon: const Icon(Icons.sort_rounded),
-                        onPressed: () => ref.read(dialogNotifierProvider.notifier).showSortProfiles(),
+                      Expanded(
+                        child: FilledButton.icon(
+                          label: Text(t.common.sort, maxLines: 1, overflow: TextOverflow.ellipsis),
+                          icon: const Icon(Icons.sort_rounded),
+                          onPressed: () => ref.read(dialogNotifierProvider.notifier).showSortProfiles(),
+                        ),
                       ),
-                      FilledButton.icon(
-                        label: Text(t.pages.profiles.updateSubscriptions, maxLines: 1, overflow: TextOverflow.ellipsis),
-                        icon: const Icon(Icons.update_rounded),
-                        onPressed: () => ref.read(foregroundProfilesUpdateNotifierProvider.notifier).trigger(),
+                      const Gap(8),
+                      Expanded(
+                        child: FilledButton.icon(
+                          label: Text(t.pages.profiles.updateSubscriptions, maxLines: 1, overflow: TextOverflow.ellipsis),
+                          icon: const Icon(Icons.update_rounded),
+                          onPressed: () => ref.read(foregroundProfilesUpdateNotifierProvider.notifier).trigger(),
+                        ),
                       ),
                     ],
                   ),

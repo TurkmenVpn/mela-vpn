@@ -849,7 +849,7 @@ class _AnnounceText extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               color: MelaColors.textSec(context),
-              fontSize: 12,
+              fontSize: 11,
               height: 1.45,
             ),
           ),
