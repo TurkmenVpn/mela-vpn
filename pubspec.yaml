@@ -1,7 +1,7 @@
 name: melavpn
 description: Cross Platform Multi Protocol Proxy Frontend.
 publish_to: "none"
-version: 1.8.6+41860
+version: 1.8.7+41870
 
 environment:
   sdk: ^3.10.4

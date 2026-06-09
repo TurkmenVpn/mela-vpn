@@ -436,70 +436,20 @@ class _MainProfileCard extends HookConsumerWidget {
 
           const Gap(8),
 
-          // Traffic bar + expiry
+          // Traffic bar + expiry + announce
           if (subInfo != null) ...[
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: _TrafficSection(subInfo: subInfo!),
+              child: _TrafficSection(subInfo: subInfo!, announce: announce),
+            ),
+            const Gap(8),
+          ] else if (announce != null && announce.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+              child: _AnnounceText(announce: announce!),
             ),
             const Gap(8),
           ],
-
-          // Announce message from subscription (base64 decoded)
-          if (announce != null && announce.isNotEmpty)
-            Container(
-              margin: const EdgeInsets.fromLTRB(14, 0, 14, 8),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    const Color(0xFF7C3AED).withValues(alpha: 0.12),
-                    const Color(0xFF06B6D4).withValues(alpha: 0.06),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: MelaColors.primary.withValues(alpha: 0.25), width: 1),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          color: MelaColors.primary.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(Icons.mark_email_unread_rounded, color: MelaColors.primary, size: 14),
-                      ),
-                      const Gap(8),
-                      const Text(
-                        'Сообщение от провайдера',
-                        style: TextStyle(
-                          color: MelaColors.primary,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.3,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Gap(8),
-                  Text(
-                    announce,
-                    style: TextStyle(
-                      color: MelaColors.textPrim(context),
-                      fontSize: 13,
-                      fontFamily: null,
-                      height: 1.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
 
           // Servers list — always visible (no service needed)
           offlineOutbounds.whenData((result) {
@@ -723,9 +673,10 @@ class _UpdateInfo extends StatelessWidget {
 }
 
 class _TrafficSection extends StatelessWidget {
-  const _TrafficSection({required this.subInfo});
+  const _TrafficSection({required this.subInfo, this.announce});
 
   final SubscriptionInfo subInfo;
+  final String? announce;
 
   @override
   Widget build(BuildContext context) {
@@ -738,11 +689,11 @@ class _TrafficSection extends StatelessWidget {
             : const Color(0xFFEF4444);
 
     final trafficText = subInfo.total > 10 * 1099511627776
-        ? '0B / ∞'
+        ? '0 / ∞'
         : subInfo.consumption.sizeOf(subInfo.total);
 
     final expiryStr = isExpired
-        ? 'Expired'
+        ? 'Истёк'
         : subInfo.remaining.inDays > 365
             ? '∞'
             : intl.DateFormat('dd.MM.yyyy').format(subInfo.expire);
@@ -752,8 +703,8 @@ class _TrafficSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // GB/GB текст + бар + дата — всё на одной строке
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Directionality(
               textDirection: TextDirection.ltr,
@@ -761,25 +712,63 @@ class _TrafficSection extends StatelessWidget {
                 trafficText,
                 style: TextStyle(
                   color: MelaColors.textPrim(context),
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
+            const Gap(8),
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: subInfo.ratio.clamp(0.0, 1.0),
+                  minHeight: 5,
+                  backgroundColor: MelaColors.brd(context),
+                  valueColor: AlwaysStoppedAnimation<Color>(trackColor),
+                ),
+              ),
+            ),
+            const Gap(8),
             Text(
-              isExpired ? 'Expired' : isNoTraffic ? 'No traffic' : 'Exp: $expiryStr',
-              style: TextStyle(color: statusColor, fontSize: 12, fontWeight: FontWeight.w500),
+              isExpired ? 'Истёк' : isNoTraffic ? 'Нет трафика' : expiryStr,
+              style: TextStyle(color: statusColor, fontSize: 11, fontWeight: FontWeight.w500),
             ),
           ],
         ),
+        // Announce текст ниже бара
+        if (announce != null && announce!.isNotEmpty) ...[
+          const Gap(6),
+          _AnnounceText(announce: announce!),
+        ],
+      ],
+    );
+  }
+}
+
+class _AnnounceText extends StatelessWidget {
+  const _AnnounceText({required this.announce});
+  final String announce;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          Icons.info_outline_rounded,
+          size: 13,
+          color: MelaColors.primary.withValues(alpha: 0.7),
+        ),
         const Gap(5),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: subInfo.ratio.clamp(0.0, 1.0),
-            minHeight: 5,
-            backgroundColor: MelaColors.brd(context),
-            valueColor: AlwaysStoppedAnimation<Color>(trackColor),
+        Expanded(
+          child: Text(
+            announce,
+            style: TextStyle(
+              color: MelaColors.textSec(context),
+              fontSize: 12,
+              height: 1.4,
+            ),
           ),
         ),
       ],
