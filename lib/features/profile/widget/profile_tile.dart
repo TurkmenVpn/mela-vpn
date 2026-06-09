@@ -28,6 +28,7 @@ import 'package:melavpn/features/proxy/overview/proxies_overview_notifier.dart';
 import 'package:melavpn/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // Maps common country name prefixes to flag emojis
@@ -442,10 +443,10 @@ class _MainProfileCard extends HookConsumerWidget {
             ),
           ),
 
-          // Last update + auto-update interval
+          // Last update + auto-update interval + web/tg links
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 2, 14, 0),
-            child: _UpdateInfo(profile: profile, updateInterval: updateInterval),
+            child: _UpdateInfo(profile: profile, updateInterval: updateInterval, subInfo: subInfo),
           ),
 
           const Gap(8),
@@ -665,10 +666,11 @@ class _OfflineProxyRow extends ConsumerWidget {
 
 
 class _UpdateInfo extends StatelessWidget {
-  const _UpdateInfo({required this.profile, required this.updateInterval});
+  const _UpdateInfo({required this.profile, required this.updateInterval, this.subInfo});
 
   final ProfileEntity profile;
   final Duration? updateInterval;
+  final SubscriptionInfo? subInfo;
 
   @override
   Widget build(BuildContext context) {
@@ -679,9 +681,60 @@ class _UpdateInfo extends StatelessWidget {
       Duration(inHours: final h) when h > 0 => ' · Auto $h h',
       _ => '',
     };
-    return Text(
-      '$dateStr$intervalStr',
-      style: TextStyle(color: MelaColors.textHint(context), fontSize: 11),
+
+    final webUrl = subInfo?.webPageUrl;
+    final supportUrl = subInfo?.supportUrl;
+    final isTg = supportUrl != null &&
+        (supportUrl.contains('t.me/') ||
+            supportUrl.contains('telegram.me/') ||
+            supportUrl.contains('telegram.dog/'));
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            '$dateStr$intervalStr',
+            style: TextStyle(color: MelaColors.textHint(context), fontSize: 11),
+          ),
+        ),
+        if (webUrl != null) ...[
+          const Gap(4),
+          _LinkIconButton.web(url: webUrl),
+        ],
+        if (supportUrl != null) ...[
+          const Gap(4),
+          _LinkIconButton.tg(url: supportUrl),
+        ],
+      ],
+    );
+  }
+}
+
+class _LinkIconButton extends StatelessWidget {
+  const _LinkIconButton.tg({required this.url}) : isTg = true;
+  const _LinkIconButton.web({required this.url}) : isTg = false;
+
+  final String url;
+  final bool isTg;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isTg ? const Color(0xFF2AABEE) : MelaColors.primary;
+    return GestureDetector(
+      onTap: () => launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
+      child: Container(
+        height: 24,
+        width: 28,
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: color.withValues(alpha: 0.28), width: 1),
+        ),
+        alignment: Alignment.center,
+        child: isTg
+            ? FaIcon(FontAwesomeIcons.telegram, size: 12, color: color)
+            : Icon(Icons.language_rounded, size: 13, color: color),
+      ),
     );
   }
 }
@@ -766,26 +819,61 @@ class _AnnounceText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(
-          Icons.info_outline_rounded,
-          size: 13,
-          color: MelaColors.primary.withValues(alpha: 0.7),
-        ),
-        const Gap(5),
-        Expanded(
-          child: Text(
+    final lineColor = MelaColors.primary.withValues(alpha: 0.25);
+    final accentColor = MelaColors.primary.withValues(alpha: 0.65);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: MelaColors.primary.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: MelaColors.primary.withValues(alpha: 0.12), width: 1),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // top decorative divider
+          Row(
+            children: [
+              Expanded(child: Container(height: 1, color: lineColor)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 7),
+                child: Icon(Icons.campaign_rounded, size: 13, color: accentColor),
+              ),
+              Expanded(child: Container(height: 1, color: lineColor)),
+            ],
+          ),
+          const Gap(7),
+          Text(
             announce,
+            textAlign: TextAlign.center,
             style: TextStyle(
               color: MelaColors.textSec(context),
               fontSize: 12,
-              height: 1.4,
+              height: 1.45,
             ),
           ),
-        ),
-      ],
+          const Gap(7),
+          // bottom decorative divider
+          Row(
+            children: [
+              Expanded(child: Container(height: 1, color: lineColor)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 7),
+                child: Container(
+                  width: 4,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: accentColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              Expanded(child: Container(height: 1, color: lineColor)),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
