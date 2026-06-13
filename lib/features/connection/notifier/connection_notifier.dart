@@ -139,6 +139,7 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
   }
 
   final _singleStart = SingleCall();
+  final _singleDisconnect = SingleCall();
 
   Future<void> _connect() async {
     _singleStart.run(
@@ -196,15 +197,22 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
   }
 
   Future<void> _disconnect() async {
-    _connectedAt = null;
-    await ref.read(Preferences.connectedAt.notifier).update(null);
-    await _connectionRepo.disconnect().mapLeft((err) {
-      loggy.warning("error disconnecting", err);
-      ref
-          .read(dialogNotifierProvider.notifier)
-          .showCustomAlertFromErr(err.present(ref.read(translationsProvider).requireValue));
-      state = AsyncError(err, StackTrace.current);
-    }).run();
+    _singleDisconnect.run(
+      () async {
+        _connectedAt = null;
+        await ref.read(Preferences.connectedAt.notifier).update(null);
+        await _connectionRepo.disconnect().mapLeft((err) {
+          loggy.warning("error disconnecting", err);
+          ref
+              .read(dialogNotifierProvider.notifier)
+              .showCustomAlertFromErr(err.present(ref.read(translationsProvider).requireValue));
+          state = AsyncError(err, StackTrace.current);
+        }).run();
+      },
+      onIgnored: () {
+        loggy.debug("disconnect called while already disconnecting, ignoring");
+      },
+    );
   }
 }
 

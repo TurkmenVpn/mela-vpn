@@ -17,7 +17,6 @@ import 'package:melavpn/features/app_update/notifier/app_update_notifier.dart';
 import 'package:melavpn/features/connection/widget/connection_wrapper.dart';
 import 'package:melavpn/features/per_app_proxy/overview/per_app_proxy_service_notifier.dart';
 import 'package:melavpn/features/profile/notifier/profiles_update_notifier.dart';
-import 'package:melavpn/features/stats/notifier/speed_history_notifier.dart';
 import 'package:melavpn/features/shortcut/shortcut_wrapper.dart';
 import 'package:melavpn/features/system_tray/notifier/system_tray_notifier.dart';
 import 'package:melavpn/features/window/widget/window_wrapper.dart';
@@ -64,7 +63,6 @@ class App extends HookConsumerWidget with WidgetsBindingObserver, PresLogger {
     final activeBreakpoint = Breakpoint(context).activeBreakpoint;
 
     ref.listen(foregroundProfilesUpdateNotifierProvider, (_, _) {});
-    ref.listen(speedHistoryNotifierProvider, (_, _) {});
     if (PlatformUtils.isAndroid) ref.listen(perAppProxyServiceProvider, (_, _) {});
     if (PlatformUtils.isDesktop) ref.listen(systemTrayNotifierProvider, (_, _) {});
 

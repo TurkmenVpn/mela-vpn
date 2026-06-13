@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dartx/dartx.dart';
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:melavpn/core/bootstrap/bootstrap_proxy_provider.dart';
 import 'package:melavpn/core/db/db.dart';
 import 'package:melavpn/core/device_id/device_id_provider.dart';
 import 'package:melavpn/core/http_client/dio_http_client.dart';
@@ -50,6 +51,7 @@ class ProfileParser {
     'announce',
     'enable-warp',
     'enable-fragment',
+    'x-update-proxy',
   ];
 
   final Ref _ref;
@@ -96,9 +98,12 @@ class ProfileParser {
     CancelToken? cancelToken,
   }) => _downloadProfile(url, tempFilePath, cancelToken).flatMap(
     (remoteHeaders) =>
-        TaskEither.fromEither(
-          populateHeaders(content: File(tempFilePath).readAsStringSync(), remoteHeaders: remoteHeaders),
-        ).flatMap(
+        TaskEither.tryCatch(
+          () => File(tempFilePath).readAsString(),
+          ProfileFailure.unexpected,
+        ).flatMap((content) => TaskEither.fromEither(
+          populateHeaders(content: content, remoteHeaders: remoteHeaders),
+        )).flatMap(
           (populatedHeaders) => TaskEither.fromEither(
             parse(
               tempFilePath: tempFilePath,
@@ -122,9 +127,12 @@ class ProfileParser {
     CancelToken? cancelToken,
   }) => _downloadProfile(rp.url, tempFilePath, cancelToken).flatMap(
     (remoteHeaders) =>
-        TaskEither.fromEither(
-          populateHeaders(content: File(tempFilePath).readAsStringSync(), remoteHeaders: remoteHeaders),
-        ).flatMap(
+        TaskEither.tryCatch(
+          () => File(tempFilePath).readAsString(),
+          ProfileFailure.unexpected,
+        ).flatMap((content) => TaskEither.fromEither(
+          populateHeaders(content: content, remoteHeaders: remoteHeaders),
+        )).flatMap(
           (populatedHeaders) => TaskEither.fromEither(
             parse(
               tempFilePath: tempFilePath,
@@ -155,31 +163,70 @@ class ProfileParser {
     final sendHwid = _ref.read(sendHwidWithSubscription);
     final hwid = sendHwid ? _ref.read(deviceIdProvider) : null;
 
-    final rs = await _httpClient
-        .download(
-          url.trim(),
-          tempFilePath,
-          cancelToken: cancelToken,
-          userAgent: _ref.read(ConfigOptions.useXrayCoreWhenPossible)
-              ? _httpClient.userAgent.replaceAll("MelaVPNNext", "MelaVPNNextX")
-              : null,
-          extraHeaders: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache',
-            if (hwid != null) 'X-HWID': hwid,
-          },
-        )
-        .catchError((Object err) {
-          if (err is DioException && CancelToken.isCancel(err)) {
-            throw const ProfileFailure.cancelByUser('HTTP request for getting profile content canceled by user.');
-          }
-          throw err;
-        });
+    final subHeaders = <String, String>{
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache',
+      if (hwid != null) 'X-HWID': hwid,
+    };
+
+    final ua = _ref.read(ConfigOptions.useXrayCoreWhenPossible)
+        ? _httpClient.userAgent.replaceAll("MelaVPNNext", "MelaVPNNextX")
+        : null;
+
+    Future<Response> tryDownload({bool proxyOnly = false, bool directOnly = false, bool bothMode = false}) =>
+        _httpClient
+            .download(
+              url.trim(),
+              tempFilePath,
+              cancelToken: cancelToken,
+              userAgent: ua,
+              extraHeaders: subHeaders,
+              proxyOnly: proxyOnly,
+              directOnly: directOnly,
+              bothMode: bothMode,
+            )
+            .catchError((Object err) {
+              if (err is DioException && CancelToken.isCancel(err)) {
+                throw const ProfileFailure.cancelByUser(
+                  'HTTP request for getting profile content canceled by user.',
+                );
+              }
+              throw err;
+            });
+
+    late Response rs;
+    bool usedProxy = false;
+    try {
+      // Always try direct first — fast for unblocked URLs
+      rs = await tryDownload(directOnly: true);
+    } catch (firstErr) {
+      if (firstErr is ProfileFailure) rethrow;
+      // Direct failed (blocked) — retry through any available proxy:
+      // "both" mode tries: VPN proxy → bootstrap proxy from backend → direct
+      rs = await tryDownload(bothMode: true);
+      usedProxy = true;
+    }
+
+    // Save or clear subscription update proxy distributed by admin panel.
+    // Server sends: x-update-proxy: socks5://host:port  (or http://host:port, or host:port)
+    // Server disables: x-update-proxy: off
+    final rawUpdateProxy = (rs.headers.map['x-update-proxy']?.firstOrNull ?? '').trim();
+    if (rawUpdateProxy == 'off' || rawUpdateProxy == 'disable' || rawUpdateProxy == '0') {
+      await _ref.read(bootstrapProxyAddrProvider.notifier).update('');
+    } else if (rawUpdateProxy.isNotEmpty) {
+      final normalized = normalizeProxyAddr(rawUpdateProxy);
+      if (normalized.isNotEmpty) {
+        await _ref.read(bootstrapProxyAddrProvider.notifier).update(normalized);
+      }
+    }
+
     await expandRemoteLinesInParallel(
       tempFilePath: tempFilePath,
       httpClient: _httpClient,
       cancelToken: cancelToken ?? CancelToken(),
       ref: _ref,
+      extraHeaders: subHeaders,
+      proxyOnly: usedProxy,
     );
     // fixing headers before return
     return rs.headers.map.map((key, value) {
@@ -187,12 +234,16 @@ class ProfileParser {
       return MapEntry(key, value);
     });
   }, (err, st) => err is ProfileFailure ? err : ProfileFailure.unexpected(err, st));
+  static const _maxSubUrlLines = 200;
+
   Future<void> expandRemoteLinesInParallel({
     required String tempFilePath,
     required DioHttpClient httpClient,
     required CancelToken cancelToken,
     required Ref ref,
     int parallelism = 4,
+    Map<String, String>? extraHeaders,
+    bool proxyOnly = false,
   }) async {
     var content = await File(tempFilePath).readAsString();
 
@@ -212,6 +263,14 @@ class ProfileParser {
     }
 
     final lines = content.split('\n');
+
+    // Guard against malicious subscriptions with excessive sub-URL counts
+    final httpLineCount = lines.where((l) {
+      final t = l.trimLeft();
+      return t.startsWith('http://') || t.startsWith('https://');
+    }).length;
+    if (httpLineCount > _maxSubUrlLines) return;
+
     final results = List<String?>.filled(lines.length, null);
 
     int index = 0;
@@ -238,6 +297,8 @@ class ProfileParser {
             line.trim(),
             tmpPath,
             cancelToken: cancelToken,
+            extraHeaders: extraHeaders,
+            proxyOnly: proxyOnly,
           );
 
           results[currentIndex] = (await File(tmpPath).readAsString()).trim();
@@ -311,7 +372,7 @@ class ProfileParser {
       if (line.startsWith("#") || line.startsWith("//")) {
         final index = line.indexOf(':');
         if (index == -1) continue;
-        final key = line.substring(0, index).replaceFirst(RegExp("^#|//"), "").trim().toLowerCase();
+        final key = line.substring(0, index).replaceFirst(RegExp(r'^[#/]+'), "").trim().toLowerCase();
         final value = line.substring(index + 1).trim();
         headers[key] = value;
       }
@@ -470,12 +531,12 @@ class ProfileParser {
   }) {
     final headers = Map<String, dynamic>.from(populatedHeaders ?? {});
 
-    if (headers['enable-warp'].toString() == 'true' || userOverride?.enableWarp == true) {
+    if (headers['enable-warp']?.toString() == 'true' || userOverride?.enableWarp == true) {
       headers['chain-status'] = 'extra_security';
       headers['extra-security'] = {'mode': 'warp'};
     }
 
-    if (headers['enable-fragment'].toString() == 'true' || userOverride?.enableFragment == true) {
+    if (headers['enable-fragment']?.toString() == 'true' || userOverride?.enableFragment == true) {
       headers['tls-tricks'] = {'enable-fragment': true};
     }
 

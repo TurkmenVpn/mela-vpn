@@ -1,9 +1,11 @@
 import 'package:dartx/dartx.dart';
+import 'package:dio/dio.dart';
 import 'package:melavpn/core/app_info/app_info_provider.dart';
 import 'package:melavpn/core/localization/translations.dart';
 import 'package:melavpn/core/notification/in_app_notification_controller.dart';
 import 'package:melavpn/core/preferences/general_preferences.dart';
 import 'package:melavpn/core/preferences/preferences_provider.dart';
+import 'package:melavpn/features/connection/model/connection_status.dart';
 import 'package:melavpn/features/connection/notifier/connection_notifier.dart';
 import 'package:melavpn/features/profile/data/profile_data_providers.dart';
 import 'package:melavpn/features/profile/model/profile_entity.dart';
@@ -37,6 +39,7 @@ class ForegroundProfilesUpdateNotifier extends _$ForegroundProfilesUpdateNotifie
     );
 
     ref.onDispose(() async {
+      _currentCancelToken?.cancel();
       await _scheduler?.stop();
       _scheduler = null;
     });
@@ -47,6 +50,17 @@ class ForegroundProfilesUpdateNotifier extends _$ForegroundProfilesUpdateNotifie
     } else {
       loggy.debug("intro in process, skipping");
     }
+
+    // When VPN connects → immediately refresh all subscriptions.
+    // Subscriptions on blocked domains will now load through the active VPN tunnel.
+    ref.listen(connectionNotifierProvider, (previous, next) {
+      final wasConnected = previous?.valueOrNull?.isConnected ?? false;
+      final isNowConnected = next.valueOrNull?.isConnected ?? false;
+      if (!wasConnected && isNowConnected) {
+        loggy.info("VPN connected — triggering subscription refresh for blocked domains");
+        trigger();
+      }
+    });
 
     _checkVersionChange();
     return const Stream.empty();
@@ -71,6 +85,7 @@ class ForegroundProfilesUpdateNotifier extends _$ForegroundProfilesUpdateNotifie
 
   NeatPeriodicTaskScheduler? _scheduler;
   bool _forceNextRun = false;
+  CancelToken? _currentCancelToken;
 
   Future<void> trigger() async {
     loggy.debug("triggering update");
@@ -114,7 +129,7 @@ class ForegroundProfilesUpdateNotifier extends _$ForegroundProfilesUpdateNotifie
           final result = await ref
               .read(profileRepositoryProvider)
               .requireValue
-              .upsertRemote(profile.url)
+              .upsertRemote(profile.url, cancelToken: _currentCancelToken = CancelToken())
               .mapLeft((l) {
                 loggy.debug("error updating profile [${profile.id}]", l);
                 ref

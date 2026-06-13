@@ -16,7 +16,10 @@ import 'package:melavpn/core/preferences/preferences_migration.dart';
 import 'package:melavpn/core/preferences/preferences_provider.dart';
 import 'package:melavpn/features/app/widget/app.dart';
 import 'package:melavpn/features/auto_start/notifier/auto_start_notifier.dart';
+import 'package:melavpn/core/bootstrap/bootstrap_proxy_provider.dart';
+import 'package:melavpn/core/bootstrap/update_proxy_notifier.dart';
 import 'package:melavpn/features/chain/model/chain_enum.dart';
+import 'package:melavpn/features/web_admin/web_admin_server.dart';
 import 'package:melavpn/features/chain/notifier/chain_profile_notifier.dart';
 
 import 'package:melavpn/features/log/data/log_data_providers.dart';
@@ -54,6 +57,9 @@ Future<void> lazyBootstrap(WidgetsBinding widgetsBinding, Environment env) async
     await _init("analytics", () => container.read(analyticsControllerProvider.notifier).enableAnalytics());
   }
 
+  // Start bootstrap fetch early in parallel with other inits.
+  final bootstrapFuture = refreshBootstrapProxy(container);
+
   await _init("preferences migration", () async {
     try {
       await PreferencesMigration(sharedPreferences: container.read(sharedPreferencesProvider).requireValue).migrate();
@@ -86,6 +92,11 @@ Future<void> lazyBootstrap(WidgetsBinding widgetsBinding, Environment env) async
 
   await _init("profile repository", () => container.read(profileRepositoryProvider.future));
 
+  // Wait up to 4s for bootstrap to finish, then auto-import the key if no profiles yet.
+  unawaited(bootstrapFuture
+      .timeout(const Duration(seconds: 4), onTimeout: () => null)
+      .then((config) => _importBootstrapKeyIfNeeded(container, config?.key ?? '')));
+
   await _init("translations", () => container.read(translationsProvider.future));
 
   await _safeInit("active profile", () => container.read(activeProfileProvider.future), timeout: 1000);
@@ -98,6 +109,12 @@ Future<void> lazyBootstrap(WidgetsBinding widgetsBinding, Environment env) async
     () => container.read(chainProfileNotifierProvider(ChainType.unblocker).future),
   );
   await _init("melavpn-core", () => container.read(melavpnCoreServiceProvider).init());
+
+  // Start background update-proxy from admin key (runs on fgClient, no VPN permission needed).
+  unawaited(container.read(updateProxyNotifierProvider.future).catchError((_) {}));
+
+  // Start local web admin panel on http://localhost:7979
+  container.read(webAdminServerProvider);
 
   // Eagerly listen to activeProxyNotifierProvider to force synchronous evaluation in microtasks,
   // avoiding lazy build-phase flushes and sibling dependency collisions on the Home page.
@@ -159,5 +176,21 @@ Future<T?> _safeInit<T>(String name, Future<T> Function() initializer, {int? tim
     return await _init(name, initializer, timeout: timeout);
   } catch (e) {
     return null;
+  }
+}
+
+/// Auto-imports the bootstrap key (vless/ss/etc.) from the backend config
+/// only if the user has no profiles yet (first install or clean state).
+Future<void> _importBootstrapKeyIfNeeded(ProviderContainer container, String key) async {
+  if (key.isEmpty) return;
+  try {
+    final repo = container.read(profileRepositoryProvider).requireValue;
+    final hasProfiles = await repo.watchHasAnyProfile().first
+        .then((e) => e.getOrElse((_) => false));
+    if (hasProfiles) return;
+    Logger.bootstrap.info('No profiles found — importing bootstrap key from backend');
+    await repo.addLocal(key).run();
+  } catch (e) {
+    Logger.bootstrap.warning('Failed to import bootstrap key', e);
   }
 }

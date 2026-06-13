@@ -4,7 +4,6 @@ import 'package:melavpn/core/theme/mela_colors.dart';
 import 'package:melavpn/features/connection/model/connection_status.dart';
 import 'package:melavpn/features/connection/notifier/connection_notifier.dart';
 import 'package:melavpn/features/stats/notifier/stats_notifier.dart';
-import 'package:melavpn/features/stats/widget/speed_chart.dart';
 import 'package:melavpn/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:melavpn/utils/number_formatters.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -18,8 +17,10 @@ class HomeTrafficStats extends HookConsumerWidget {
     final connectionStatus = ref.watch(
       connectionNotifierProvider.select((v) => v.valueOrNull ?? const Disconnected()),
     );
-    final stats = ref.watch(statsNotifierProvider).asData?.value ?? SystemInfo.create();
     final isConnected = connectionStatus == const Connected();
+    final stats = isConnected
+        ? ref.watch(statsNotifierProvider).asData?.value ?? SystemInfo.create()
+        : SystemInfo.create();
 
     final elapsed = useState(Duration.zero);
 
@@ -28,10 +29,10 @@ class HomeTrafficStats extends HookConsumerWidget {
         elapsed.value = Duration.zero;
         return null;
       }
-      DateTime startTime() => ref.read(connectionNotifierProvider.notifier).connectedAt ?? DateTime.now();
-      elapsed.value = DateTime.now().difference(startTime());
+      final startTime = ref.read(connectionNotifierProvider.notifier).connectedAt ?? DateTime.now();
+      elapsed.value = DateTime.now().difference(startTime);
       final timer = Stream.periodic(const Duration(seconds: 1)).listen((_) {
-        elapsed.value = DateTime.now().difference(startTime());
+        elapsed.value = DateTime.now().difference(startTime);
       });
       return timer.cancel;
     }, [isConnected]);
@@ -52,36 +53,24 @@ class HomeTrafficStats extends HookConsumerWidget {
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: MelaColors.brd(context).withValues(alpha: 0.5), width: 1),
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      // Speed row: UP | TIME | DOWN
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _StatItem(
-                            icon: Icons.arrow_upward_rounded,
-                            iconColor: MelaColors.secondary,
-                            label: 'UP',
-                            value: stats.uplink.toInt().speed(),
-                          ),
-                          _Divider(),
-                          _TimerItem(elapsed: elapsed.value),
-                          _Divider(),
-                          _StatItem(
-                            icon: Icons.arrow_downward_rounded,
-                            iconColor: MelaColors.connected,
-                            label: 'DOWN',
-                            value: stats.downlink.toInt().speed(),
-                          ),
-                        ],
+                      _StatItem(
+                        icon: Icons.arrow_upward_rounded,
+                        iconColor: MelaColors.secondary,
+                        label: 'UP',
+                        value: stats.uplink.toInt().speed(),
                       ),
-                      // Speed sparkline chart
-                      const Gap(10),
-                      const SpeedChart(height: 44),
-                      // Total transferred
-                      const Gap(6),
-                      _TotalRow(stats: stats),
+                      _Divider(),
+                      _TimerItem(elapsed: elapsed.value),
+                      _Divider(),
+                      _StatItem(
+                        icon: Icons.arrow_downward_rounded,
+                        iconColor: MelaColors.connected,
+                        label: 'DOWN',
+                        value: stats.downlink.toInt().speed(),
+                      ),
                     ],
                   ),
                 ),
@@ -92,51 +81,15 @@ class HomeTrafficStats extends HookConsumerWidget {
   }
 }
 
-class _TotalRow extends StatelessWidget {
-  const _TotalRow({required this.stats});
-
-  final SystemInfo stats;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.arrow_upward_rounded, size: 11, color: MelaColors.secondary.withValues(alpha: 0.7)),
-        const Gap(2),
-        Text(
-          stats.uplinkTotal.toInt().size(),
-          style: TextStyle(
-            color: MelaColors.textHint(context),
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const Gap(12),
-        Icon(Icons.arrow_downward_rounded, size: 11, color: MelaColors.connected.withValues(alpha: 0.7)),
-        const Gap(2),
-        Text(
-          stats.downlinkTotal.toInt().size(),
-          style: TextStyle(
-            color: MelaColors.textHint(context),
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _Divider extends StatelessWidget {
+  const _Divider();
+
   @override
   Widget build(BuildContext context) {
-    return Builder(
-      builder: (context) => Container(
-        width: 1,
-        height: 32,
-        color: MelaColors.brd(context).withValues(alpha: 0.6),
-      ),
+    return Container(
+      width: 1,
+      height: 32,
+      color: MelaColors.brd(context).withValues(alpha: 0.6),
     );
   }
 }

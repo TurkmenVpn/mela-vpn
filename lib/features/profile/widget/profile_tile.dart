@@ -129,17 +129,17 @@ String _stripLeadingFlag(String text) {
 }
 
 // Offline proxy selection — in-memory while app runs
-final _offlineSelectedOutboundProvider = StateProvider.family<String, String>(
+final _offlineSelectedOutboundProvider = StateProvider.autoDispose.family<String, String>(
   (ref, profileId) => '',
 );
 
 // Offline ping results: profileId → {rawTag → ms}
-final _offlinePingResultsProvider = StateProvider.family<Map<String, int>, String>(
+final _offlinePingResultsProvider = StateProvider.autoDispose.family<Map<String, int>, String>(
   (ref, profileId) => {},
 );
 
 // Whether offline ping is in progress for a profile
-final _offlinePingingProvider = StateProvider.family<bool, String>(
+final _offlinePingingProvider = StateProvider.autoDispose.family<bool, String>(
   (ref, profileId) => false,
 );
 
@@ -157,8 +157,12 @@ Future<int> _tcpPing(String host, int port) async {
 }
 
 Future<void> _runOfflinePing(List<ProfileOutbound> items, String profileId, WidgetRef ref) async {
-  if (ref.read(_offlinePingingProvider(profileId))) return;
-  ref.read(_offlinePingingProvider(profileId).notifier).state = true;
+  try {
+    if (ref.read(_offlinePingingProvider(profileId))) return;
+    ref.read(_offlinePingingProvider(profileId).notifier).state = true;
+  } on StateError {
+    return;
+  }
   try {
     final futures = items
         .where((i) => i.host.isNotEmpty && i.port > 0)
@@ -167,9 +171,13 @@ Future<void> _runOfflinePing(List<ProfileOutbound> items, String profileId, Widg
           return MapEntry(item.rawTag, ms);
         });
     final results = await Future.wait(futures);
-    ref.read(_offlinePingResultsProvider(profileId).notifier).state = Map.fromEntries(results);
+    try {
+      ref.read(_offlinePingResultsProvider(profileId).notifier).state = Map.fromEntries(results);
+    } on StateError {/* widget disposed */}
   } finally {
-    ref.read(_offlinePingingProvider(profileId).notifier).state = false;
+    try {
+      ref.read(_offlinePingingProvider(profileId).notifier).state = false;
+    } on StateError {/* widget disposed */}
   }
 }
 
@@ -1018,6 +1026,21 @@ class ProfileActionsMenu extends HookConsumerWidget {
               },
             ),
             AdaptiveMenuItem(
+              title: 'Crypt+Proxy ссылка',
+              leadingIcon: const Icon(Icons.vpn_key_rounded),
+              onTap: () async {
+                final proxy = await _showProxyInputDialog(context);
+                if (proxy == null || proxy.isEmpty) return;
+                final link = await LinkParser.generateCryptLinkWithProxy(url, proxy, name);
+                await Clipboard.setData(ClipboardData(text: link));
+                if (context.mounted) {
+                  ref
+                      .read(inAppNotificationControllerProvider)
+                      .showSuccessToast('Crypt+Proxy ссылка скопирована');
+                }
+              },
+            ),
+            AdaptiveMenuItem(
               title: t.pages.profiles.share.showUrlQr,
               onTap: () async {
                 final link = LinkParser.generateSubShareLink(url, name);
@@ -1263,13 +1286,14 @@ class NewSiteSubscriptionInfo extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
-    final uri = Uri.parse(subInfo.webPageUrl ?? "");
-    var host = uri.host;
-    if (["telegram.me", "t.me"].contains(host)) {
+    final webPageUrl = subInfo.webPageUrl;
+    final uri = webPageUrl != null ? Uri.tryParse(webPageUrl) : null;
+    var host = uri?.host ?? '';
+    if (["telegram.me", "t.me"].contains(host) && uri != null) {
       host = "@${uri.path.split("/").last}";
     }
     return InkWell(
-      onTap: () => launchUrl(Uri.parse(subInfo.webPageUrl ?? "")),
+      onTap: uri != null ? () => launchUrl(uri) : null,
       child: Column(
         children: [
           const Icon(FluentIcons.globe_person_24_filled, size: 24, color: Colors.blue),
@@ -1292,6 +1316,37 @@ class NewSiteSubscriptionInfo extends HookConsumerWidget {
       ),
     );
   }
+}
+
+/// Prompts admin to enter a proxy URI (ss://, vless://, etc.) to embed in a Crypt+Proxy link.
+Future<String?> _showProxyInputDialog(BuildContext context) async {
+  final controller = TextEditingController();
+  return showDialog<String>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Вставьте ключ VPN (bootstrap)'),
+      content: TextField(
+        controller: controller,
+        autofocus: true,
+        decoration: const InputDecoration(
+          hintText: 'ss://... или vless://...',
+          border: OutlineInputBorder(),
+        ),
+        minLines: 1,
+        maxLines: 3,
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(),
+          child: const Text('Отмена'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(controller.text.trim()),
+          child: const Text('Добавить'),
+        ),
+      ],
+    ),
+  );
 }
 
 class RemainingTrafficIndicator extends StatelessWidget {

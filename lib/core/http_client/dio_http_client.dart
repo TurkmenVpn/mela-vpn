@@ -24,7 +24,7 @@ class DioHttpClient with InfraLogger {
           dio: _dio[mode]!,
           retryDelays: [
             const Duration(seconds: 1),
-            if (mode != "proxy") ...[const Duration(seconds: 2), const Duration(seconds: 3)],
+            if (mode == "both") ...[const Duration(seconds: 2), const Duration(seconds: 3)],
           ],
         ),
       );
@@ -38,6 +38,14 @@ class DioHttpClient with InfraLogger {
             } else if (mode == "direct") {
               return "DIRECT";
             } else {
+              final bootstrap = _bootstrapProxyAddr;
+              if (bootstrap.isNotEmpty) {
+                // socks5:host:port → SOCKS host:port; otherwise → PROXY host:port
+                final pacBootstrap = bootstrap.startsWith('socks5:')
+                    ? 'SOCKS ${bootstrap.substring(7)}'
+                    : 'PROXY $bootstrap';
+                return "PROXY localhost:$port; $pacBootstrap; DIRECT";
+              }
               return "PROXY localhost:$port; DIRECT";
             }
           };
@@ -52,6 +60,11 @@ class DioHttpClient with InfraLogger {
   }
 
   int port = 0;
+  String _bootstrapProxyAddr = '';
+
+  void setBootstrapProxy(String addr) {
+    _bootstrapProxyAddr = addr;
+  }
 
   String userAgent;
   // bool isPortOpen(String host, int port, {Duration timeout = const Duration(milliseconds: 200)}) async{
@@ -66,7 +79,7 @@ class DioHttpClient with InfraLogger {
   //     return false;
   //   }
   // }
-  Future<bool> isPortOpen(String host, int port, {Duration timeout = const Duration(seconds: 5)}) async {
+  Future<bool> isPortOpen(String host, int port, {Duration timeout = const Duration(milliseconds: 200)}) async {
     try {
       final socket = await Socket.connect(host, port, timeout: timeout);
       await socket.close();
@@ -112,12 +125,18 @@ class DioHttpClient with InfraLogger {
     String? userAgent,
     ({String username, String password})? credentials,
     bool proxyOnly = false,
+    bool directOnly = false,
+    bool bothMode = false,
     Map<String, String>? extraHeaders,
     ProgressCallback? onReceiveProgress,
     Duration? receiveTimeout = const Duration(minutes: 10),
   }) async {
     final mode = proxyOnly
         ? "proxy"
+        : directOnly
+        ? "direct"
+        : bothMode
+        ? "both"
         : await isPortOpen("127.0.0.1", port)
         ? "both"
         : "direct";

@@ -171,9 +171,10 @@ class ProxiesOverviewNotifier extends _$ProxiesOverviewNotifier with AppLogger {
       items.add(item);
       // }
     }
-    proxies.items.clear();
-    proxies.items.addAll(items);
-    return proxies;
+    final result = proxies.clone();
+    result.items.clear();
+    result.items.addAll(items);
+    return result;
   }
 
   // Future<void> changeProxy(String groupTag, String outboundTag) async {

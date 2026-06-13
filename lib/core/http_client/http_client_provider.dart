@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:melavpn/core/app_info/app_info_provider.dart';
+import 'package:melavpn/core/bootstrap/bootstrap_proxy_provider.dart';
 import 'package:melavpn/core/http_client/dio_http_client.dart';
 import 'package:melavpn/features/settings/data/config_option_repository.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -16,5 +17,6 @@ DioHttpClient httpClient(Ref ref) {
   );
 
   ref.listen(ConfigOptions.mixedPort, (_, next) => client.setProxyPort(next), fireImmediately: true);
+  ref.listen(bootstrapProxyAddrProvider, (_, next) => client.setBootstrapProxy(next), fireImmediately: true);
   return client;
 }

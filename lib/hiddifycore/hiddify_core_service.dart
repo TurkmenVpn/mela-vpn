@@ -200,6 +200,9 @@ class MelaVPNCoreService with InfraLogger {
       var errMsg = "";
       try {
         final res = await core.bgClient.stop(Empty());
+        if (res.messageType != MessageType.EMPTY) {
+          loggy.warning("stop() returned non-empty response: ${res.messageType} ${res.message}");
+        }
       } on GrpcError catch (e) {
         if (e.code == StatusCode.unknown && !(e.message?.contains("HTTP/2") ?? false)) {
           errMsg = e.message ?? "failed to stop core: $e";
@@ -243,6 +246,28 @@ class MelaVPNCoreService with InfraLogger {
       // }
       // return right(unit);
     });
+  }
+
+  /// Starts the foreground sing-box with a minimal no-TUN config (SOCKS5 proxy only).
+  /// Used for the admin-provided update proxy key. Does NOT require Android VPN permission.
+  Future<bool> startUpdateProxy(String configPath) async {
+    try {
+      final res = await core.fgClient.start(
+        StartRequest(configPath: configPath, configName: 'update-proxy', disableMemoryLimit: false),
+      );
+      return res.messageType == MessageType.EMPTY || res.messageType == MessageType.ALREADY_STARTED;
+    } catch (e) {
+      loggy.warning('startUpdateProxy failed: $e');
+      return false;
+    }
+  }
+
+  Future<void> stopUpdateProxy() async {
+    try {
+      await core.fgClient.stop(Empty());
+    } catch (e) {
+      loggy.warning('stopUpdateProxy failed: $e');
+    }
   }
 
   TaskEither<String, Unit> resetTunnel() {
@@ -442,7 +467,6 @@ class MelaVPNCoreService with InfraLogger {
           })
           .doOnData((event) {
             loggy.debug("status", event);
-            if (currentState == const CoreStatus.started()) currentState = const CoreStatus.stopped();
           })
           .doOnDone(() {
             loggy.error("status", "done");
@@ -478,7 +502,7 @@ class MelaVPNCoreService with InfraLogger {
         if (logBuffer.length > 300) {
           logBuffer.removeAt(0);
         }
-        logController.add(logBuffer);
+        logController.add(List.unmodifiable(logBuffer));
         // loggy.log(getLogLevel(event.level), event.message);
         event.message.split('\n').forEach((line) {
           loggy.log(getLogLevel(event.level), line);

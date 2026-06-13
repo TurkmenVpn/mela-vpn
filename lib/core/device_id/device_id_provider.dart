@@ -25,7 +25,8 @@ String deviceId(DeviceIdRef ref) {
 @riverpod
 String deviceIdShort(DeviceIdShortRef ref) {
   final full = ref.watch(deviceIdProvider);
-  return full.replaceAll('-', '').substring(0, 8).toUpperCase();
+  final stripped = full.replaceAll('-', '').padRight(8, '0');
+  return stripped.substring(0, 8).toUpperCase();
 }
 
 /// Whether to send device ID as X-HWID header in subscription requests.

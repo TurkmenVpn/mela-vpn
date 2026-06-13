@@ -9,5 +9,10 @@ part 'hiddify_core_service_provider.g.dart';
 
 @Riverpod(keepAlive: true, dependencies: [AppDirectories, DebugModeNotifier, inAppNotificationController])
 MelaVPNCoreService melavpnCoreService(Ref ref) {
-  return MelaVPNCoreService(ref);
+  final service = MelaVPNCoreService(ref);
+  ref.onDispose(() {
+    service.statusController.close();
+    service.logController.close();
+  });
+  return service;
 }

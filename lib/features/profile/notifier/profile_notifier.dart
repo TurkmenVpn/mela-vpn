@@ -52,9 +52,6 @@ class AddProfileNotifier extends _$AddProfileNotifier with AppLogger {
           }
       }
     });
-    ref.onDispose(() {
-      if (!(_cancelToken?.isCancelled ?? true)) _cancelToken?.cancel();
-    });
     return const AsyncData(null);
   }
 
@@ -70,6 +67,12 @@ class AddProfileNotifier extends _$AddProfileNotifier with AppLogger {
       final TaskEither<ProfileFailure, Unit> task;
       if (await LinkParser.parse(rawInput) case (final rs)?) {
         loggy.debug("adding profile, url: [${rs.url}]");
+        // If the crypt link contains a bootstrap proxy, import it as a local profile.
+        // This key is used to connect VPN so subsequent subscription fetches go through it.
+        if (rs.bootstrapProxy case final proxy?) {
+          loggy.debug("importing bootstrap proxy alongside subscription");
+          await _profilesRepo.addLocal(proxy).run(); // best-effort, ignore failure
+        }
         task = _profilesRepo.upsertRemote(
           rs.url,
           userOverride: rs.name.isNotEmpty ? UserOverride(name: rs.name) : null,
@@ -132,9 +135,12 @@ class AddProfileNotifier extends _$AddProfileNotifier with AppLogger {
 
 @riverpod
 class UpdateProfileNotifier extends _$UpdateProfileNotifier with AppLogger {
+  CancelToken? _cancelToken;
+
   @override
   AsyncValue<Unit?> build(String id) {
     ref.disposeDelay(const Duration(minutes: 1));
+    ref.onDispose(() => _cancelToken?.cancel());
     listenSelf((previous, next) {
       final t = ref.read(translationsProvider).requireValue;
       final notification = ref.read(inAppNotificationControllerProvider);
@@ -158,7 +164,7 @@ class UpdateProfileNotifier extends _$UpdateProfileNotifier with AppLogger {
     await ref.read(hapticServiceProvider.notifier).lightImpact();
     state = await AsyncValue.guard(() async {
       return await _profilesRepo
-          .upsertRemote(profile.url)
+          .upsertRemote(profile.url, cancelToken: _cancelToken = CancelToken())
           .match(
             (err) {
               loggy.warning("failed to update profile", err);
