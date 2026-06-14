@@ -353,25 +353,23 @@ systemctl enable --now mela-panel</div>
 </div>
 
 <script>
-let API = '', TOK = '';
+let TOK = '';
 
 // ── Login ─────────────────────────────────────────────────────────────────────
 function doLogin() {
-  API = window.location.origin;
   TOK = g('l-tok').value.trim();
-  if (!TOK) return showT('l-err','Введи токен',0);
+  if (!TOK) return showT('l-err','Введи пароль',0);
   api('GET','/api/config').then(r=>{
-    if (r.status===401) return showT('l-err','Неверный токен',0);
-    if (!r.ok) return showT('l-err','Ошибка подключения: '+r.status,0);
+    if (r.status===401) return showT('l-err','Неверный пароль',0);
+    if (!r.ok) return showT('l-err','Ошибка: '+r.status,0);
     sessionStorage.setItem('ms', JSON.stringify({t:TOK}));
     g('login-screen').style.display='none';
     g('main-app').style.display='block';
     loadAll();
-  }).catch(e=>showT('l-err','Не удалось подключиться к серверу',0));
+  }).catch(()=>showT('l-err','Сервер недоступен',0));
 }
 
 window.onload=()=>{
-  API = window.location.origin;
   const s = sessionStorage.getItem('ms');
   if(s){const p=JSON.parse(s);TOK=p.t;
     api('GET','/api/config').then(r=>{
@@ -568,7 +566,7 @@ function updateSubDisplay(sub){
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
 function api(method, path, body){
-  return fetch(API+path,{
+  return fetch(path,{
     method, headers:{'X-Token':TOK,'Content-Type':'application/json'},
     body: body ? JSON.stringify(body) : undefined
   });

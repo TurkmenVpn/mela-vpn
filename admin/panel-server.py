@@ -46,9 +46,6 @@ if not SUB_FILE.exists():
 if not RELAYS_FILE.exists():
     RELAYS_FILE.write_text('[]')
 
-# ── HTML панель (встроена в сервер) ───────────────────────────────────────────
-PANEL_HTML_PATH = Path(__file__).parent / 'panel.html'
-
 # ── HTTP Handler ──────────────────────────────────────────────────────────────
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args): pass  # тихий лог
@@ -81,15 +78,6 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         path = urlparse(self.path).path
-
-        # Панель
-        if path in ('/', '/panel'):
-            html = PANEL_HTML_PATH.read_bytes() if PANEL_HTML_PATH.exists() else b'panel.html not found'
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(html)
-            return
 
         if not self.auth_ok():
             return self.json_resp({'error': 'unauthorized'}, 401)
@@ -205,5 +193,5 @@ echo "RELAY_OK"
 
 # ── Start ─────────────────────────────────────────────────────────────────────
 if __name__ == '__main__':
-    print(f'MelaVPN Panel → http://ВАШ_VPS_IP:{PORT}')
-    HTTPServer(('0.0.0.0', PORT), Handler).serve_forever()
+    print(f'MelaVPN backend → localhost:{PORT}')
+    HTTPServer(('127.0.0.1', PORT), Handler).serve_forever()
