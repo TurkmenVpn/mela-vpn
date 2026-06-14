@@ -19,7 +19,6 @@ import 'package:melavpn/features/auto_start/notifier/auto_start_notifier.dart';
 import 'package:melavpn/core/bootstrap/bootstrap_proxy_provider.dart';
 import 'package:melavpn/core/bootstrap/update_proxy_notifier.dart';
 import 'package:melavpn/features/chain/model/chain_enum.dart';
-import 'package:melavpn/features/web_admin/web_admin_server.dart';
 import 'package:melavpn/features/chain/notifier/chain_profile_notifier.dart';
 
 import 'package:melavpn/features/log/data/log_data_providers.dart';
@@ -112,9 +111,6 @@ Future<void> lazyBootstrap(WidgetsBinding widgetsBinding, Environment env) async
 
   // Start background update-proxy from admin key (runs on fgClient, no VPN permission needed).
   unawaited(container.read(updateProxyNotifierProvider.future).catchError((_) {}));
-
-  // Start local web admin panel on http://localhost:7979
-  container.read(webAdminServerProvider);
 
   // Eagerly listen to activeProxyNotifierProvider to force synchronous evaluation in microtasks,
   // avoiding lazy build-phase flushes and sibling dependency collisions on the Home page.
