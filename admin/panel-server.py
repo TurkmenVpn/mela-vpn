@@ -5,7 +5,7 @@ MelaVPN Admin Panel Server
 Доступ: http://VPS_IP:7979
 """
 
-import json, os, subprocess, functools, hashlib, secrets
+import json, os, subprocess, hashlib, getpass
 from pathlib import Path
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
@@ -16,16 +16,27 @@ DATA_DIR    = Path('/etc/mela')
 CONFIG_FILE = DATA_DIR / 'config.json'
 SUB_FILE    = DATA_DIR / 'subscription.txt'
 RELAYS_FILE = DATA_DIR / 'relays.json'
-TOKEN_FILE  = DATA_DIR / 'panel_token'
+PASS_FILE   = DATA_DIR / 'password'
 
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-# Токен — генерируется один раз при первом запуске
-if not TOKEN_FILE.exists():
-    token = secrets.token_hex(16)
-    TOKEN_FILE.write_text(token)
-    print(f'\n🔑 Твой токен для панели: {token}\n')
-TOKEN = TOKEN_FILE.read_text().strip()
+# Пароль — задаётся при первом запуске
+if not PASS_FILE.exists():
+    print('\n🔐 Первый запуск — задай пароль для панели:')
+    while True:
+        pw = getpass.getpass('Пароль: ').strip()
+        pw2 = getpass.getpass('Повтори: ').strip()
+        if not pw:
+            print('Пароль не может быть пустым')
+        elif pw != pw2:
+            print('Пароли не совпадают, попробуй снова')
+        else:
+            PASS_FILE.write_text(hashlib.sha256(pw.encode()).hexdigest())
+            print('✅ Пароль сохранён\n')
+            break
+    PASSWORD_HASH = hashlib.sha256(pw.encode()).hexdigest()
+else:
+    PASSWORD_HASH = PASS_FILE.read_text().strip()
 
 # Начальные файлы
 if not CONFIG_FILE.exists():
@@ -56,7 +67,8 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def auth_ok(self):
-        return self.headers.get('X-Token') == TOKEN
+        pw = self.headers.get('X-Token', '')
+        return hashlib.sha256(pw.encode()).hexdigest() == PASSWORD_HASH
 
     def body(self):
         n = int(self.headers.get('Content-Length', 0))
@@ -193,7 +205,5 @@ echo "RELAY_OK"
 
 # ── Start ─────────────────────────────────────────────────────────────────────
 if __name__ == '__main__':
-    print(f'MelaVPN Panel → http://0.0.0.0:{PORT}')
-    print(f'Токен: {TOKEN}')
-    print(f'Открой в браузере: http://ВАШ_VPS_IP:{PORT}')
+    print(f'MelaVPN Panel → http://ВАШ_VPS_IP:{PORT}')
     HTTPServer(('0.0.0.0', PORT), Handler).serve_forever()

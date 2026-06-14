@@ -87,8 +87,8 @@ textarea{resize:vertical;font-family:monospace;font-size:13px;line-height:1.5}
   <div class="login-box">
     <div class="login-title">🔐 MelaVPN Panel</div>
     <div class="row">
-      <label>Токен</label>
-      <input id="l-tok" type="password" placeholder="токен из /etc/mela/panel_token">
+      <label>Пароль</label>
+      <input id="l-tok" type="password" placeholder="введи пароль панели">
     </div>
     <div style="margin-top:16px">
       <button class="btn bp" onclick="doLogin()">Войти →</button>
@@ -280,7 +280,7 @@ textarea{resize:vertical;font-family:monospace;font-size:13px;line-height:1.5}
       <ol>
         <li>Установи панель на backend VPS: <code>pip3 install paramiko && python3 panel-server.py</code></li>
         <li>Открой в браузере: <code>http://BACKEND_IP:7979</code></li>
-        <li>Введи токен из <code>/etc/mela/panel_token</code></li>
+        <li>Введи пароль который задал при первом запуске</li>
         <li>Перейди во вкладку <strong>Relay</strong> → добавь relay VPS</li>
         <li>Добавь свои домены в DNS (A-запись → IP relay)</li>
         <li>Добавь VPN ключи во вкладке <strong>Ключи</strong></li>
@@ -329,8 +329,8 @@ textarea{resize:vertical;font-family:monospace;font-size:13px;line-height:1.5}
       <ul>
         <li>Панель доступна по адресу <code>http://VPS_IP:7979</code></li>
         <li>Доступ защищён токеном (заголовок X-Token)</li>
-        <li>Токен хранится в <code>/etc/mela/panel_token</code></li>
-        <li>Смена токена: <code>echo "новый-токен" > /etc/mela/panel_token</code> + перезапуск</li>
+        <li>Пароль хранится в <code>/etc/mela/password</code> (sha256 хеш)</li>
+        <li>Сброс пароля: <code>rm /etc/mela/password</code> + перезапуск</li>
       </ul>
 
       <h3>⚙️ Запуск панели как сервис</h3>
