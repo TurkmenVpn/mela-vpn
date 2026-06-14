@@ -160,7 +160,6 @@ const Map<String, OrgIconData> organizationData = {
   "cloudflare": OrgIconData(SimpleIcons.cloudflare, SimpleIconColors.cloudflare),
   "hetzner": OrgIconData(SimpleIcons.hetzner, SimpleIconColors.hetzner),
   "ovh": OrgIconData(SimpleIcons.ovh, SimpleIconColors.ovh),
-  "amazon": OrgIconData(SimpleIcons.amazonwebservices, SimpleIconColors.amazonwebservices),
   "fastly": OrgIconData(SimpleIcons.fastly, SimpleIconColors.fastly),
   "digitalocean": OrgIconData(SimpleIcons.digitalocean, SimpleIconColors.digitalocean),
   "alibaba": OrgIconData(SimpleIcons.alibabacloud, SimpleIconColors.alibabacloud),
