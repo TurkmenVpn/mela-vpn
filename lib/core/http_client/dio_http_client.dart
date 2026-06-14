@@ -106,7 +106,7 @@ class DioHttpClient with InfraLogger {
   }) async {
     final mode = proxyOnly
         ? "proxy"
-        : await isPortOpen("127.0.0.1", port)
+        : (await isPortOpen("127.0.0.1", port) || _bootstrapProxyAddr.isNotEmpty)
         ? "both"
         : "direct";
     final dio = _dio[mode]!;
@@ -135,9 +135,7 @@ class DioHttpClient with InfraLogger {
         ? "proxy"
         : directOnly
         ? "direct"
-        : bothMode
-        ? "both"
-        : await isPortOpen("127.0.0.1", port)
+        : (bothMode || await isPortOpen("127.0.0.1", port) || _bootstrapProxyAddr.isNotEmpty)
         ? "both"
         : "direct";
     final dio = _dio[mode]!;
